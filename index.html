@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<title>Madinah Group — жильё, визы, туры и авто в Медине</title>
+<link rel="icon" href="assets/img/emblem-192.webp" type="image/webp">
+<link rel="apple-touch-icon" href="assets/img/emblem-192.webp">
+<link rel="preload" href="assets/img/emblem.webp" as="image">
+<link rel="stylesheet" href="assets/css/style.css">
+<link rel="stylesheet" href="assets/css/features.css">
+<link rel="stylesheet" href="assets/css/services.css">
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+
+<!-- ========================= заставка: эмблема MADINAH GROUP проявляется === -->
+<div class="intro" id="intro">
+  <div class="intro-medal">
+    <div class="intro-halo"></div>
+    <svg class="intro-ring" viewBox="0 0 200 200" aria-hidden="true"><circle cx="100" cy="100" r="97"/></svg>
+    <div class="intro-disc">
+      <img class="intro-emblem" src="assets/img/emblem.webp" alt="MADINAH GROUP" decoding="async" fetchpriority="high">
+      <span class="intro-shine"></span>
+    </div>
+  </div>
+  <div class="intro-sub" id="introSub">Жильё · визы · туры · авто</div>
+</div>
+
+<!-- ============================================== первый запуск: язык ==== -->
+<div class="lang-screen" id="langScreen" hidden>
+  <h2>Выберите язык</h2>
+  <div class="sub">Tilni tanlang · Choose language</div>
+  <div class="lang-btns">
+    <button class="lang-btn" data-lang="ru"><span>Русский</span><span>RU</span></button>
+    <button class="lang-btn" data-lang="uz"><span>O‘zbekcha</span><span>UZ</span></button>
+    <button class="lang-btn" data-lang="en"><span>English</span><span>EN</span></button>
+  </div>
+</div>
+
+<!-- ======================================================== шапка ======== -->
+<header class="appbar" id="appbar" hidden>
+  <div class="appbar-row">
+    <img class="appbar-logo" src="assets/img/emblem-192.webp" alt="" width="38" height="38">
+    <div class="appbar-txt">
+      <div class="appbar-title" id="brandName">Madinah Group</div>
+      <div class="appbar-sub"  id="brandSub">Жильё · визы · туры · авто</div>
+    </div>
+    <div class="lang-seg" role="group" aria-label="Language">
+      <button data-setlang="ru" aria-label="Русский">RU</button>
+      <button data-setlang="uz" aria-label="O‘zbekcha">UZ</button>
+      <button data-setlang="en" aria-label="English">EN</button>
+    </div>
+  </div>
+</header>
+
+<!-- внутри «Квартир»: список · карта · избранное -->
+<nav class="subnav" id="housingNav" hidden>
+  <button class="is-on" data-screen="catalog">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+    <span data-t="subList"></span>
+  </button>
+  <button data-screen="map">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3 3 5.5v15L9 18l6 3 6-2.5v-15L15 6 9 3Z"/><path d="M9 3v15M15 6v15"/></svg>
+    <span data-t="subMap"></span>
+  </button>
+  <button data-screen="fav">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20s-7.5-4.6-7.5-9.4A4.1 4.1 0 0 1 12 7.9a4.1 4.1 0 0 1 7.5 2.7C19.5 15.4 12 20 12 20Z"/></svg>
+    <span data-t="subFav"></span>
+    <span class="pip" id="favPip" hidden>0</span>
+  </button>
+</nav>
+
+<!-- =================================================== экран: каталог ==== -->
+<main class="screen" id="screenCatalog" hidden>
+  <div id="adminBar" hidden></div>
+  <div class="statusline">
+    <span class="dot-live"></span>
+    <span id="liveLine"></span>
+  </div>
+  <div class="chips" id="districtChips"></div>
+  <div class="list" id="cards"></div>
+</main>
+
+<!-- ===================================================== экран: карта ==== -->
+<main class="screen" id="screenMap" hidden>
+  <div class="map-wrap"><div id="mapBox"></div></div>
+  <div class="map-offline" id="mapOffline" hidden></div>
+  <div class="map-hint" id="mapHint"></div>
+  <div class="map-cards" id="mapCards"></div>
+  <div class="map-nogeo" id="mapNoGeo" hidden></div>
+  <div class="section-title" id="mapAreasTitle"></div>
+  <div id="districtList"></div>
+</main>
+
+<!-- ================================================ экран: избранное ===== -->
+<main class="screen" id="screenFav" hidden>
+  <div class="section-title" id="favTitleEl"></div>
+  <div class="list" id="favCards"></div>
+  <div class="empty" id="favEmpty" hidden>
+    <h3 id="favEmptyTitle"></h3>
+    <p id="favEmptyHint"></p>
+  </div>
+</main>
+
+<!-- ====================================== экраны услуг (services.js) ==== -->
+<main class="screen" id="screenVisa" hidden></main>
+<main class="screen" id="screenTours" hidden></main>
+<main class="screen" id="screenCars" hidden></main>
+
+<!-- ====== админ-панель (/admin): рисует admin-content.js только администратору ====== -->
+<main class="screen" id="screenAdmin" hidden></main>
+
+<!-- =================================================== экран: условия ==== -->
+<main class="screen" id="screenOffer" hidden>
+  <div class="section-title" id="offerTitleEl"></div>
+  <div class="terms-seg"><div class="seg" id="termsSeg">
+    <button data-terms="housing" class="is-on" data-t="termsHousing"></button>
+    <button data-terms="visa" data-t="tabVisa"></button>
+    <button data-terms="tours" data-t="tabTours"></button>
+    <button data-terms="cars" data-t="tabCars"></button>
+  </div></div>
+  <div id="offerHousing">
+  <div class="offer-hero">
+    <svg class="pattern" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M50 8 L58 34 L84 26 L76 50 L84 74 L58 66 L50 92 L42 66 L16 74 L24 50 L16 26 L42 34 Z" fill="none" stroke="currentColor" stroke-width="3"/>
+    </svg>
+    <span id="offerIntro"></span>
+    <div style="margin-top:8px;font-size:12.5px;color:var(--ink-3)" id="offerVersion"></div>
+  </div>
+  <div id="offerSections"></div>
+  <div class="section-title" id="casesTitleEl"></div>
+  <div class="acc is-open" id="casesBox">
+    <div class="acc-body" style="padding-top:14px" id="casesList"></div>
+  </div>
+  <div class="section-title" id="stepsTitleEl"></div>
+  <div class="steps" id="stepsList"></div>
+  </div>
+  <div id="offerService" hidden></div>
+  <div class="about">
+    <h3 id="aboutTitleEl"></h3>
+    <p id="aboutText"></p>
+  </div>
+  <div class="section-title" id="contactTitleEl"></div>
+  <div class="wrap" style="display:grid;gap:10px;padding-bottom:10px" id="contactBox"></div>
+</main>
+
+<!-- ======================================================= вкладки ======= -->
+<nav class="tabbar" id="tabbar" hidden>
+  <button class="tab is-on" data-screen="catalog">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/><path d="M9.5 21v-6h5v6"/></svg>
+    <span data-t="tabCatalog"></span>
+  </button>
+  <button class="tab" data-screen="visa">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="5" y="2.8" width="14" height="18.4" rx="2.2"/><circle cx="12" cy="10.2" r="3.2"/><path d="M8.8 10.2h6.4M12 7v6.4M9 17h6"/></svg>
+    <span data-t="tabVisa"></span>
+  </button>
+  <button class="tab" data-screen="tours">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18"/><path d="M5.5 21v-5.2a6.5 6.5 0 0 1 13 0V21"/><path d="M12 9.3V6.6"/><path d="M12 4.2a1.3 1.3 0 1 0 1.2 1.8"/><path d="M9.5 21v-3a2.5 2.5 0 0 1 5 0v3"/></svg>
+    <span data-t="tabTours"></span>
+  </button>
+  <button class="tab" data-screen="cars">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 16.5V13l2.2-5a2 2 0 0 1 1.8-1.2h10a2 2 0 0 1 1.8 1.2L21 13v3.5"/><path d="M3 13h18M3 16.5h18"/><circle cx="7.5" cy="16.8" r="1.9"/><circle cx="16.5" cy="16.8" r="1.9"/></svg>
+    <span data-t="tabCars"></span>
+  </button>
+  <button class="tab" data-screen="offer">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h4"/></svg>
+    <span data-t="tabOffer"></span>
+  </button>
+</nav>
+
+<!-- ======================================================== шторки ======= -->
+<div class="sheet-back" id="sheetBack" hidden></div>
+
+<section class="sheet" id="sheetDetail" hidden>
+  <div class="sheet-grab"><i></i></div>
+  <div class="sheet-scroll" id="detailScroll"></div>
+  <div class="sheet-cta" id="detailCta"></div>
+</section>
+
+<section class="sheet" id="sheetFilter" hidden>
+  <div class="sheet-grab"><i></i></div>
+  <div class="sheet-scroll">
+    <div class="sheet-head"><h2 data-t="filters"></h2></div>
+    <div class="wrap" style="display:grid;gap:16px;padding-bottom:16px" id="filterBody"></div>
+  </div>
+  <div class="sheet-cta">
+    <button class="btn" id="filterApply" data-t="apply"></button>
+    <button class="btn btn-ghost" id="filterReset" data-t="resetFilters"></button>
+  </div>
+</section>
+
+<section class="sheet" id="sheetBook" hidden>
+  <div class="sheet-grab"><i></i></div>
+  <div class="sheet-scroll" id="bookScroll"></div>
+  <div class="sheet-cta" id="bookCta"></div>
+</section>
+
+<!-- панель риелтора: заполняется из admin.js, видит только риелтор -->
+<section class="sheet sheet-tall" id="sheetAdmin" hidden>
+  <div class="sheet-grab"><i></i></div>
+  <div class="sheet-scroll" id="adminScroll"></div>
+  <div class="sheet-cta" id="adminCta"></div>
+</section>
+
+<script src="assets/js/i18n.js"></script>
+<script src="assets/js/data.js"></script>
+<script src="assets/js/gallery.js"></script>
+<script src="assets/js/map.js"></script>
+<script src="assets/js/services.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

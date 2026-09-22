@@ -1,0 +1,7 @@
+# Что не нужно на Vercel (и не должно быть видно снаружи)
+bot/
+tools/
+deploy/
+dist/
+.claude/
+*.md

@@ -1,0 +1,16 @@
+# systemd: приложение и бот работают сами и поднимаются после перезагрузки сервера.
+# Положить в /etc/systemd/system/madinah-bot.service, затем:
+#   systemctl daemon-reload && systemctl enable --now madinah-bot
+[Unit]
+Description=Madinah Group — приложение, панель риелтора и бот
+After=network-online.target
+
+[Service]
+WorkingDirectory=/opt/madinah-rent
+ExecStart=/usr/bin/node bot/server.js
+Restart=always
+RestartSec=5
+User=www-data
+
+[Install]
+WantedBy=multi-user.target

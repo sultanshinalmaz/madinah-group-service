@@ -1,0 +1,32 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "installCommand": "npm install --omit=dev",
+  "functions": {
+    "api/[...path].js": {
+      "maxDuration": 60,
+      "memory": 1024,
+      "includeFiles": "assets/js/**"
+    }
+  },
+  "rewrites": [
+    { "source": "/admin", "destination": "/index.html" },
+    { "source": "/admin/", "destination": "/index.html" },
+    { "source": "/webhook", "destination": "/api/webhook" },
+    { "source": "/media/:file*", "destination": "/api/media/:file*" }
+  ],
+  "redirects": [
+    { "source": "/lib/:file*", "destination": "/", "permanent": false },
+    { "source": "/package.json", "destination": "/", "permanent": false },
+    { "source": "/package-lock.json", "destination": "/", "permanent": false }
+  ],
+  "headers": [
+    {
+      "source": "/assets/(img|video|fonts)/(.*)",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=604800" }]
+    },
+    {
+      "source": "/(index.html)?",
+      "headers": [{ "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" }]
+    }
+  ]
+}

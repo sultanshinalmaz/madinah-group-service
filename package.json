@@ -1,0 +1,22 @@
+{
+  "name": "madinah-group",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Madinah Group — Telegram Mini App: жильё, визы, туры и авто в Медине",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node bot/server.js",
+    "dev": "node bot/server.js --dev",
+    "test": "node tools/test-all.mjs",
+    "check": "node tools/check-deploy.mjs"
+  },
+  "dependencies": {
+    "@vercel/blob": "^2.8.0",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "pg-mem": "^3.0.14"
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "madinah-rent",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["dev-server.js"],
+      "port": 5180
+    },
+    {
+      "name": "madinah-server",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["bot/server.js", "--dev"],
+      "port": 8443
+    }
+  ]
+}

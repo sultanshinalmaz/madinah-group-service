@@ -1,0 +1,293 @@
+<!doctype html>
+<!-- Политика для владельцев квартир. Из неё tools/owner-pdf.mjs печатает
+     assets/docs/owner-policy-ar.pdf (для владельцев), -ru.pdf (для Абдуллаха), -en.pdf.
+     Язык выбирается параметром: owner-policy.html?lang=ar | ru | en -->
+<html>
+<head>
+<meta charset="utf-8">
+<title>Madinah Group — owner policy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Naskh+Arabic:wght@400;600;700&family=PT+Serif:ital,wght@0,400;0,700;1,400&display=block" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 13mm 16mm 16mm; }
+  :root {
+    --ink: #2b2118;
+    --ink-2: #5d5043;
+    --green: #1d6b45;
+    --gold: #b38c3c;
+    --gold-soft: #efe4cc;
+    --paper: #f8f3ea;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; color: var(--ink); background: #fff; font: 10pt/1.5 'PT Serif', Georgia, serif; }
+  body[dir="rtl"] { font: 10.8pt/1.66 'Noto Naskh Arabic', 'Segoe UI', Tahoma, serif; }
+
+  /* ---- шапка: эмблема, название, звезда-разделитель ---- */
+  .head { text-align: center; padding: 2mm 0 0; }
+  .medal {
+    width: 23mm; height: 23mm; margin: 0 auto 2.2mm; border-radius: 50%; overflow: hidden;
+    background: #efe9df; box-shadow: 0 0 0 .7mm var(--gold), 0 0 0 1.6mm #fff, 0 0 0 1.85mm var(--gold-soft);
+  }
+  .medal img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  h1 { margin: 0; font-size: 17pt; line-height: 1.25; font-weight: 700; letter-spacing: .01em; }
+  body[dir="rtl"] h1 { font-size: 18pt; letter-spacing: 0; }
+  .sub { margin-top: .6mm; color: var(--ink-2); font-size: 10pt; }
+  .ver { margin-top: .6mm; color: var(--gold); font-size: 9.4pt; letter-spacing: .04em; }
+  /* разделитель — восьмиконечная звезда (руб аль-хизб), как в заставке и в разделе «Условия» */
+  .rule { display: flex; align-items: center; gap: 3mm; margin: 2.6mm auto 3.2mm; width: 72%; color: var(--gold); }
+  .rule::before, .rule::after { content: ''; flex: 1; height: .3mm; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .rule::after { background: linear-gradient(90deg, var(--gold), transparent); }
+  .rule svg { width: 6mm; height: 6mm; flex: none; }
+
+  .intro {
+    background: var(--paper); border-radius: 2.4mm; padding: 2.6mm 4.2mm; margin-bottom: 3.6mm;
+    border-inline-start: 1mm solid var(--green); font-size: 10pt;
+  }
+  body[dir="rtl"] .intro { font-size: 10.8pt; }
+
+  /* ---- пункты ---- */
+  .clause { display: grid; grid-template-columns: 7mm 1fr; gap: 0 2.6mm; margin-bottom: 2.5mm; break-inside: avoid; }
+  .num {
+    width: 6.6mm; height: 6.6mm; border-radius: 50%; background: var(--green); color: #fff;
+    display: grid; place-items: center; font-weight: 700; font-size: 9.6pt; margin-top: .4mm;
+  }
+  body[dir="rtl"] .num { font-size: 10.6pt; }
+  .clause h2 { margin: 0 0 .4mm; font-size: 11pt; line-height: 1.35; color: var(--green); }
+  body[dir="rtl"] .clause h2 { font-size: 11.8pt; line-height: 1.45; }
+  .clause ul { margin: 0; padding: 0; list-style: none; }
+  .clause li { position: relative; padding-inline-start: 4mm; margin-bottom: .3mm; }
+  .clause li::before {
+    content: ''; position: absolute; inset-inline-start: .4mm; top: .62em; width: 1.5mm; height: 1.5mm;
+    background: var(--gold); transform: rotate(45deg);
+  }
+  body[dir="rtl"] .clause li::before { top: .8em; }
+  .clause li.ex { color: var(--ink-2); font-style: italic; }
+  body[dir="rtl"] .clause li.ex { font-style: normal; }
+
+  .note { margin: 3mm 0 3.6mm; padding: 2mm 3.6mm; border: .3mm dashed var(--gold); border-radius: 2mm; color: var(--ink-2); font-size: 9.6pt; }
+  body[dir="rtl"] .note { font-size: 10pt; }
+
+  /* ---- подписи ---- */
+  .signs { break-inside: avoid; }
+  .signs h3 { margin: 0 0 1.8mm; font-size: 11pt; color: var(--green); text-align: center; }
+  body[dir="rtl"] .signs h3 { font-size: 11.8pt; }
+  .sign-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 5mm; }
+  .box { border: .3mm solid #d9ccb3; border-radius: 2.4mm; padding: 2.4mm 3.6mm 2.8mm; }
+  .box b { display: block; margin-bottom: 1.6mm; font-size: 10.6pt; }
+  body[dir="rtl"] .box b { font-size: 11.8pt; }
+  .line { display: flex; align-items: flex-end; gap: 2mm; min-height: 7.6mm; font-size: 9.4pt; color: var(--ink-2); }
+  body[dir="rtl"] .line { font-size: 10pt; min-height: 8mm; }
+  .line span { white-space: nowrap; }
+  .line i { flex: 1; border-bottom: .3mm dotted #9c8c74; height: 1px; margin-bottom: 1.3mm; }
+  .line em { flex: 1; font-style: normal; color: var(--ink); padding-bottom: .4mm; }
+</style>
+</head>
+<body>
+<main id="doc"></main>
+<script>
+var STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.3">' +
+  '<rect x="5" y="5" width="14" height="14"/><rect x="5" y="5" width="14" height="14" transform="rotate(45 12 12)"/>' +
+  '<circle cx="12" cy="12" r="2.2"/></g></svg>';
+
+var DOC = {
+  ar: {
+    dir: 'rtl', lang: 'ar',
+    title: 'سياسة التعاون مع ملّاك العقارات',
+    sub: 'Madinah Group — الوساطة في تأجير الشقق السكنية بالمدينة المنورة',
+    ver: 'الإصدار ١٫٠ — سبتمبر ٢٠٢٦',
+    intro: 'توضّح هذه السياسة دور الوسيط العقاري وحقوق المالك والتزاماته عند تأجير عقاره عن طريق Madinah Group، لتكون الأمور واضحة لجميع الأطراف منذ البداية، ولا تحدث مفاجآت بعد التسكين.',
+    digits: '١٢٣٤٥٦٧٨٩',
+    clauses: [
+      { t: 'دور الوسيط', items: [
+        'يعرض الوسيط الشقة على المستأجرين، وينسّق بين المالك والمستأجر، ويساعد في إتمام الحجز والتسكين.',
+        'تنتهي مهمة الوسيط بتسكين المستأجر واستلامه المفاتيح.',
+        'الوسيط ليس طرفاً في عقد الإيجار، ولا يتحمّل أي مسؤولية عن التزامات المالك أو المستأجر بعد التسكين.' ] },
+      { t: 'بيانات المستأجرين', items: [
+        'قبل الحجز يُبلغ الوسيطُ المالكَ بفئة المستأجرين (عائلة، أو عزّاب، أو طلاب) وعددهم كما صرّح بها المستأجر، وللمالك حق القبول أو الرفض.',
+        'إذا حضر عند التسكين أشخاص غير المصرَّح بهم أو بعدد أكبر (مثلاً: ثمانية بدلاً من اثنين، أو طلاب بدلاً من عائلة)، فللمالك الحق في رفض التسكين.',
+        'في هذه الحالة يُلغى الحجز ويبقى مبلغ الحجز (العربون) للمالك تعويضاً عن حجز الشقة، ويُعيد المالك إلى المستأجر ما دُفع زيادةً على مبلغ الحجز، إن وُجد.',
+        'لا يحتفظ الوسيط بأي جزء من هذه المبالغ، ولا يتحمّل أي مسؤولية عنها.' ] },
+      { t: 'الحجز وبداية مدة الإيجار', items: [
+        'تبدأ مدة الإيجار من تاريخ تسليم المبلغ للمالك، لا من تاريخ وصول المستأجر.',
+        { ex: 'مثال: إذا دُفع المبلغ في اليوم الثالث من الشهر ووصل المستأجر في اليوم السابع، يُحتسب الشهر من اليوم الثالث.' },
+        'يلتزم المالك خلال مدة الحجز بعدم تأجير الشقة لغير المستأجر، وبإبقائها جاهزة للتسكين في الموعد المتفق عليه.' ] },
+      { t: 'التسليم والاستلام', items: [
+        'عند التسكين يعاين المالك (أو من ينوب عنه) والمستأجر الشقة معاً: المكيّفات، والكهرباء، والماء، والأجهزة، والأثاث، والمفاتيح.',
+        'تُسجَّل جميع الملاحظات والأعطال قبل التسليم، ويُفضَّل توثيقها بالصور.',
+        'بعد التسكين تُحَلّ مسائل الأعطال والإصلاح والصيانة بين المالك والمستأجر مباشرة وفق اتفاقهما، ولا يتحمّل الوسيط أي مسؤولية عنها.' ] },
+      { t: 'التزامات المالك', items: [
+        'تقديم معلومات وصور صحيحة عن الشقة، وتوضيح ما يشمله الإيجار (الكهرباء، والماء، والإنترنت، والصيانة) قبل الحجز.',
+        'إبلاغ الوسيط فوراً عند تغيّر حالة الشقة (مؤجَّرة، أو شاغرة، أو غير متاحة) لتبقى الإعلانات محدَّثة.',
+        'تسليم الشقة نظيفة وصالحة للسكن وبالحالة المتفق عليها.',
+        'عدم رفع الأجرة أو تغيير الشروط المتفق عليها بعد تأكيد الحجز.' ] },
+      { t: 'المبالغ المالية', items: [
+        'تُدفع الأجرة ومبلغ الحجز للمالك مباشرة، أو حسب الاتفاق.',
+        'لا تترتب على الوسيط أي التزامات مالية تجاه المالك أو المستأجر، ولا يُطالَب بردّ أي مبالغ دُفعت للمالك.',
+        'يُتفق على أتعاب الوسيط مسبقاً.' ] },
+      { t: 'الخلافات بعد التسكين', items: [
+        'أي خلاف بين المالك والمستأجر بعد التسكين (أضرار، أو إزعاج، أو تأخّر في السداد، أو طلب الإخلاء قبل انتهاء المدة) يُحَلّ بينهما مباشرة وفق عقد الإيجار والأنظمة المعمول بها في المملكة العربية السعودية.',
+        'يجوز للوسيط أن يساعد في التواصل بين الطرفين تطوّعاً، دون أن يترتب عليه أي التزام.' ] },
+      { t: 'القوة القاهرة', items: [
+        'لا يتحمّل الوسيط المسؤولية عن الظروف الخارجة عن الإرادة، مثل: الزلازل وغيرها من الكوارث الطبيعية، والحرائق، والأوبئة، والقرارات الحكومية، وإغلاق الحدود، وتأخّر الرحلات أو إلغائها، ورفض التأشيرات.' ] },
+      { t: 'عقد الإيجار', items: [
+        'يُبرَم عقد الإيجار بين المالك والمستأجر مباشرة، ويُوثَّق وفق الأنظمة المعمول بها في المملكة العربية السعودية.' ] },
+      { t: 'الإقرار', items: [
+        'بتوقيعه على هذه الوثيقة يُقرّ المالك بأنه اطّلع على هذه السياسة وفهمها ووافق عليها.' ] }
+    ],
+    note: 'هذه الوثيقة تنظّم التعاون بين الوسيط والمالك، ولا تُغني عن عقد الإيجار بين المالك والمستأجر.',
+    signs: 'التوقيعات',
+    owner: 'المالك', broker: 'الوسيط',
+    f: { name: 'الاسم', id: 'رقم الهوية / الإقامة', phone: 'رقم الجوال', prop: 'العقار (الحي / العنوان)', sign: 'التوقيع', date: 'التاريخ' },
+    brokerName: 'عبدالله — Madinah Group'
+  },
+
+  ru: {
+    dir: 'ltr', lang: 'ru',
+    title: 'Политика сотрудничества с владельцами жилья',
+    sub: 'Madinah Group — аренда квартир в Медине через риелтора',
+    ver: 'Редакция 1.0 · сентябрь 2026 · перевод арабского текста',
+    intro: 'Эта политика объясняет роль риелтора, права и обязанности владельца, когда он сдаёт квартиру через Madinah Group, — чтобы всем сторонам всё было понятно с самого начала и после заселения не было неожиданностей.',
+    clauses: [
+      { t: 'Роль риелтора', items: [
+        'Риелтор показывает квартиру арендаторам, связывает владельца и арендатора и помогает оформить бронь и заселение.',
+        'Работа риелтора заканчивается, когда арендатор заселился и получил ключи.',
+        'Риелтор не является стороной договора аренды и не отвечает за обязательства владельца или арендатора после заселения.' ] },
+      { t: 'Кто заселяется', items: [
+        'До брони риелтор сообщает владельцу, кто будет жить (семья, холостяки или студенты) и сколько человек, — со слов арендатора. Владелец вправе согласиться или отказать.',
+        'Если при заселении приехали не те или больше людей, чем заявлено (например, восемь вместо двоих или студенты вместо семьи), владелец вправе не заселять.',
+        'В этом случае бронь аннулируется: сумма брони остаётся владельцу как компенсация за то, что он держал квартиру, а всё, что оплачено сверх брони, владелец возвращает арендатору.',
+        'Риелтор не оставляет себе никакой части этих денег и ответственности за них не несёт.' ] },
+      { t: 'Бронь и начало аренды', items: [
+        'Срок аренды считается с даты передачи оплаты владельцу, а не с даты приезда арендатора.',
+        { ex: 'Пример: оплатили 3-го числа, приехали 7-го — месяц считается с 3-го.' },
+        'На время брони владелец не сдаёт квартиру другим и держит её готовой к заселению в согласованную дату.' ] },
+      { t: 'Передача квартиры', items: [
+        'При заселении владелец (или его представитель) и арендатор вместе осматривают квартиру: кондиционеры, электричество, воду, технику, мебель, ключи.',
+        'Все замечания и неисправности фиксируются до передачи, лучше — с фотографиями.',
+        'После заселения поломки, ремонт и обслуживание решаются между владельцем и арендатором напрямую, по их договорённости; риелтор за это не отвечает.' ] },
+      { t: 'Обязанности владельца', items: [
+        'Давать верные сведения и фото квартиры и до брони уточнять, что входит в аренду (электричество, вода, интернет, обслуживание).',
+        'Сразу сообщать риелтору, если статус квартиры изменился (сдана, свободна, недоступна), чтобы объявления оставались актуальными.',
+        'Передавать квартиру чистой, пригодной для жизни и в согласованном состоянии.',
+        'Не повышать цену и не менять согласованные условия после подтверждения брони.' ] },
+      { t: 'Деньги', items: [
+        'Арендная плата и сумма брони передаются владельцу напрямую или по договорённости.',
+        'У риелтора нет денежных обязательств перед владельцем или арендатором; с него нельзя требовать возврата денег, переданных владельцу.',
+        'Вознаграждение риелтора согласуется заранее.' ] },
+      { t: 'Споры после заселения', items: [
+        'Любые споры между владельцем и арендатором после заселения (порча имущества, шум, задержка оплаты, просьба съехать раньше срока) решаются между ними напрямую — по договору аренды и законам Саудовской Аравии.',
+        'Риелтор может по доброй воле помочь сторонам связаться, но обязательств на себя не берёт.' ] },
+      { t: 'Форс-мажор', items: [
+        'Риелтор не отвечает за обстоятельства, которые от него не зависят: землетрясения и другие стихийные бедствия, пожары, эпидемии, решения властей, закрытие границ, задержку или отмену рейсов, отказ в визе.' ] },
+      { t: 'Договор аренды', items: [
+        'Договор аренды заключают владелец и арендатор напрямую; он оформляется по правилам, действующим в Саудовской Аравии.' ] },
+      { t: 'Подтверждение', items: [
+        'Подписывая этот документ, владелец подтверждает, что прочитал политику, понял её и согласен с ней.' ] }
+    ],
+    note: 'Документ регулирует сотрудничество риелтора и владельца и не заменяет договор аренды между владельцем и арендатором. Подписывается арабская версия, эта — для справки.',
+    signs: 'Подписи',
+    owner: 'Владелец', broker: 'Риелтор',
+    f: { name: 'Имя', id: '№ удостоверения / икамы', phone: 'Телефон', prop: 'Квартира (район, адрес)', sign: 'Подпись', date: 'Дата' },
+    brokerName: 'Абдуллах — Madinah Group'
+  },
+
+  en: {
+    dir: 'ltr', lang: 'en',
+    title: 'Cooperation Policy for Property Owners',
+    sub: 'Madinah Group — apartment rental brokerage in Madinah',
+    ver: 'Version 1.0 · September 2026',
+    intro: 'This policy explains the broker’s role and the owner’s rights and obligations when renting out a property through Madinah Group, so that everything is clear to all parties from the start and there are no surprises after move-in.',
+    clauses: [
+      { t: 'The broker’s role', items: [
+        'The broker shows the apartment to tenants, coordinates between owner and tenant, and helps complete the booking and move-in.',
+        'The broker’s work ends once the tenant has moved in and received the keys.',
+        'The broker is not a party to the lease and bears no responsibility for the obligations of the owner or the tenant after move-in.' ] },
+      { t: 'Tenant details', items: [
+        'Before booking, the broker tells the owner who will live in the apartment (a family, single men or students) and how many people, as declared by the tenant. The owner may accept or decline.',
+        'If at move-in different or more people arrive than declared (e.g. eight instead of two, or students instead of a family), the owner may refuse to let them in.',
+        'In that case the booking is cancelled: the booking amount stays with the owner as compensation for holding the apartment, and the owner returns to the tenant anything paid beyond it, if any.',
+        'The broker keeps no part of these amounts and bears no responsibility for them.' ] },
+      { t: 'Booking and start of the rental period', items: [
+        'The rental period starts on the date the payment is handed to the owner, not on the tenant’s arrival date.',
+        { ex: 'Example: paid on the 3rd, arrived on the 7th — the month counts from the 3rd.' },
+        'During the booking period the owner does not rent the apartment to anyone else and keeps it ready for move-in on the agreed date.' ] },
+      { t: 'Handover', items: [
+        'At move-in the owner (or a representative) and the tenant inspect the apartment together: air conditioners, electricity, water, appliances, furniture, keys.',
+        'All remarks and faults are recorded before handover, preferably with photos.',
+        'After move-in, faults, repairs and maintenance are settled directly between owner and tenant as they agree; the broker bears no responsibility for them.' ] },
+      { t: 'Owner’s obligations', items: [
+        'Provide accurate information and photos of the apartment and clarify before booking what the rent includes (electricity, water, internet, maintenance).',
+        'Inform the broker immediately when the apartment’s status changes (rented, vacant, unavailable) so listings stay up to date.',
+        'Hand over the apartment clean, habitable and in the agreed condition.',
+        'Not raise the rent or change the agreed terms after the booking is confirmed.' ] },
+      { t: 'Money', items: [
+        'Rent and the booking amount are paid to the owner directly or as agreed.',
+        'The broker has no financial obligations to the owner or the tenant and cannot be asked to refund money paid to the owner.',
+        'The broker’s fee is agreed in advance.' ] },
+      { t: 'Disputes after move-in', items: [
+        'Any dispute between owner and tenant after move-in (damage, noise, late payment, a request to leave early) is resolved directly between them under the lease and the regulations of the Kingdom of Saudi Arabia.',
+        'The broker may voluntarily help the parties communicate, without taking on any obligation.' ] },
+      { t: 'Force majeure', items: [
+        'The broker is not responsible for circumstances beyond control, such as earthquakes and other natural disasters, fires, epidemics, government decisions, border closures, flight delays or cancellations, and visa refusals.' ] },
+      { t: 'Lease contract', items: [
+        'The lease is concluded directly between the owner and the tenant and documented according to the regulations in force in the Kingdom of Saudi Arabia.' ] },
+      { t: 'Acknowledgement', items: [
+        'By signing this document the owner confirms having read, understood and accepted this policy.' ] }
+    ],
+    note: 'This document governs cooperation between the broker and the owner; it does not replace the lease between the owner and the tenant.',
+    signs: 'Signatures',
+    owner: 'Owner', broker: 'Broker',
+    f: { name: 'Name', id: 'ID / Iqama No.', phone: 'Mobile', prop: 'Property (district / address)', sign: 'Signature', date: 'Date' },
+    brokerName: 'Abdullah — Madinah Group'
+  }
+};
+
+(function () {
+  var lang = (location.search.match(/lang=(\w+)/) || [])[1] || 'ar';
+  var d = DOC[lang] || DOC.ar;
+  document.documentElement.lang = d.lang;
+  document.body.dir = d.dir;
+  function esc(s) { return String(s).replace(/[&<>]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]; }); }
+  function num(n) {
+    var s = String(n);
+    return d.digits ? s.replace(/\d/g, function (x) { return x === '0' ? '٠' : d.digits[x - 1]; }) : s;
+  }
+  function line(label, value) {
+    return '<div class="line"><span>' + esc(label) + ':</span>' + (value ? '<em>' + esc(value) + '</em>' : '<i></i>') + '</div>';
+  }
+  var h = '<header class="head">' +
+      '<div class="medal"><img src="../assets/img/emblem.webp" alt=""></div>' +
+      '<h1>' + esc(d.title) + '</h1>' +
+      '<div class="sub">' + esc(d.sub) + '</div>' +
+      '<div class="ver">' + esc(d.ver) + '</div>' +
+      '<div class="rule">' + STAR + '</div>' +
+    '</header>' +
+    '<div class="intro">' + esc(d.intro) + '</div>';
+  d.clauses.forEach(function (c, i) {
+    h += '<section class="clause"><div class="num">' + num(i + 1) + '</div><div><h2>' + esc(c.t) + '</h2><ul>' +
+      c.items.map(function (it) {
+        return typeof it === 'string' ? '<li>' + esc(it) + '</li>' : '<li class="ex">' + esc(it.ex) + '</li>';
+      }).join('') + '</ul></div></section>';
+  });
+  h += '<div class="note">' + esc(d.note) + '</div>' +
+    '<section class="signs"><h3>' + esc(d.signs) + '</h3><div class="sign-grid">' +
+      '<div class="box"><b>' + esc(d.owner) + '</b>' +
+        line(d.f.name) + line(d.f.id) + line(d.f.phone) + line(d.f.prop) + line(d.f.sign) + line(d.f.date) +
+      '</div>' +
+      '<div class="box"><b>' + esc(d.broker) + '</b>' +
+        line(d.f.name, d.brokerName) + line(d.f.phone) + line(d.f.sign) + line(d.f.date) +
+      '</div>' +
+    '</div></section>';
+  document.getElementById('doc').innerHTML = h;
+  document.title = d.title;
+  window.__footer = { dir: d.dir, left: 'Madinah Group · ' + d.title, page: lang === 'ar' ? 'صفحة' : lang === 'ru' ? 'Стр.' : 'Page', of: lang === 'ar' ? 'من' : lang === 'ru' ? 'из' : 'of' };
+  Promise.all([document.fonts.ready, new Promise(function (r) {
+    var img = document.querySelector('.medal img');
+    if (img.complete) r(); else { img.onload = r; img.onerror = r; }
+  })]).then(function () { window.__ready = true; });
+})();
+</script>
+</body>
+</html>

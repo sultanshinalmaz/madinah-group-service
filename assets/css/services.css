@@ -1,0 +1,500 @@
+/* ==========================================================================
+   Услуги Madinah Group: вкладки «Квартиры · Виза · Туры · Авто · Условия»,
+   переключатель внутри «Квартир», экраны услуг, маршрут зиярата, отчёт риелтора.
+   Узор тот же, что везде: восьмиконечная звезда (руб аль-хизб) и латунь решётки.
+   ========================================================================== */
+
+/* ------------------------------------------------------------- 5 вкладок */
+.tabbar { grid-template-columns: repeat(5, 1fr); }
+.tab { font-size: 10.5px; min-width: 0; }
+.tab span { max-width: 100%; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.appbar-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+/* ----------------------------------------- внутри «Квартир»: список · карта · ♥ */
+.subnav {
+  display: flex;
+  gap: 4px;
+  margin: 14px 16px 0;
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+}
+.subnav[hidden] { display: none; }
+.subnav button {
+  flex: 1;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 4px;
+  border-radius: 10px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  font-size: 13.5px;
+  letter-spacing: -.01em;
+  font-weight: 650;
+  color: var(--ink-2);
+  transition: background .18s ease, color .18s ease;
+}
+.subnav button svg { width: 16px; height: 16px; flex: none; }
+.subnav button span:not(.pip) { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.subnav button.is-on { background: var(--card); color: var(--green); box-shadow: var(--shadow); }
+.subnav .pip {
+  min-width: 18px; height: 18px; padding: 0 5px; flex: none;
+  border-radius: 999px; background: var(--clay); color: #fff;
+  font-size: 11px; font-weight: 700; display: inline-grid; place-items: center;
+}
+.subnav .pip[hidden] { display: none; }
+.subnav + .screen .statusline { padding-top: 10px; }
+
+/* ----------------------------------------------------------- шапка раздела */
+.svc-hero {
+  position: relative;
+  overflow: hidden;
+  margin: 14px 16px 4px;
+  padding: 18px 16px 16px;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: linear-gradient(155deg, var(--green-soft), transparent 62%), var(--card);
+}
+.svc-hero .pattern { position: absolute; right: -24px; top: -24px; width: 136px; color: var(--brass); opacity: .18; }
+.svc-hero-ic {
+  width: 46px; height: 46px;
+  border-radius: 14px;
+  background: var(--green);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--green) 32%, transparent);
+}
+.svc-hero-ic svg { width: 26px; height: 26px; }
+.svc-hero h2 { margin-top: 12px; font-size: 21px; }
+.svc-hero p { margin-top: 6px; color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
+.svc-badge {
+  margin-top: 12px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 11px;
+  border-radius: 999px;
+  background: var(--card);
+  border: 1px solid var(--line-strong);
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--green);
+}
+.svc-badge svg { width: 14px; height: 14px; }
+
+/* --------------------------------------------------------------- карточки */
+.svc-list { padding: 10px 16px 4px; display: grid; gap: 14px; }
+.svc-card {
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.svc-card.is-off { opacity: .55; }
+.svc-head { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.svc-ic {
+  width: 44px; height: 44px; flex: none;
+  border-radius: 13px;
+  background: var(--green-soft);
+  color: var(--green);
+  display: grid;
+  place-items: center;
+}
+.svc-ic svg { width: 24px; height: 24px; }
+.svc-head-t { min-width: 0; display: grid; gap: 2px; }
+.svc-head h3 { font-size: 17px; }
+.svc-price { font-size: 14px; color: var(--ink-2); }
+.svc-price b { font-size: 17px; font-weight: 800; color: var(--ink); letter-spacing: -.01em; }
+.svc-price small { font-size: 12.5px; color: var(--ink-3); }
+.svc-price.is-ask { color: var(--clay); font-weight: 650; font-size: 13.5px; }
+.svc-text { color: var(--ink-2); font-size: 14.5px; line-height: 1.5; }
+.svc-note { color: var(--ink-3); font-size: 13px; line-height: 1.45; }
+.svc-sub { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-3); font-weight: 800; }
+.svc-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.svc-tag {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  font-size: 13px; font-weight: 600; color: var(--ink-2);
+}
+.svc-tag svg { width: 15px; height: 15px; color: var(--green); flex: none; }
+.svc-inc { display: flex; flex-wrap: wrap; gap: 8px; }
+.svc-inc span {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 11px;
+  border-radius: 10px;
+  background: var(--green-soft);
+  color: var(--green);
+  font-size: 13.5px; font-weight: 650;
+}
+.svc-inc svg { width: 15px; height: 15px; }
+
+/* маршрут зиярата: остановки по пунктирной линии, номера в латунной рамке */
+.route { list-style: none; margin: 0; padding: 0; counter-reset: r; display: grid; }
+.route li { position: relative; padding: 0 0 15px 42px; counter-increment: r; display: grid; gap: 2px; }
+.route li::before {
+  content: counter(r);
+  position: absolute; left: 0; top: -1px;
+  width: 28px; height: 28px;
+  border-radius: 9px;
+  background: var(--card);
+  border: 1.5px solid var(--brass);
+  color: var(--brass);
+  font-size: 13px; font-weight: 800;
+  display: grid; place-items: center;
+}
+.route li::after {
+  content: '';
+  position: absolute; left: 13.5px; top: 31px; bottom: 3px;
+  width: 1.5px;
+  background: repeating-linear-gradient(to bottom, var(--brass) 0 4px, transparent 4px 8px);
+  opacity: .55;
+}
+.route li:last-child { padding-bottom: 0; }
+.route li:last-child::after { display: none; }
+.route b { font-size: 15px; line-height: 1.35; }
+.route span { font-size: 13.5px; color: var(--ink-2); line-height: 1.45; }
+
+/* машины */
+.svc-car { padding-top: 0; overflow: hidden; }
+.svc-car-media { margin: 0 -16px; aspect-ratio: 16 / 10; position: relative; background: var(--card-2); }
+.svc-car .svc-head { margin-top: 4px; }
+.svc-car:not(:has(.svc-car-media)) { padding-top: 16px; }
+
+/* что нужно для визы */
+.svc-docs {
+  margin: 14px 16px 0;
+  padding: 16px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px dashed var(--line-strong);
+}
+.svc-docs h3 { font-size: 15px; margin-bottom: 10px; }
+.svc-docs ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.svc-docs li { display: flex; gap: 9px; font-size: 14.5px; line-height: 1.45; }
+.svc-docs li svg { width: 17px; height: 17px; flex: none; margin-top: 2px; color: var(--green); }
+.svc-docs p { margin-top: 10px; font-size: 13px; color: var(--ink-3); }
+
+.svc-terms-link { margin: 16px 16px 6px; }
+
+/* машин ещё нет */
+.svc-empty {
+  margin: 10px 16px 0;
+  padding: 26px 18px 18px;
+  border-radius: var(--radius);
+  background: var(--card);
+  border: 1px solid var(--line);
+  text-align: center;
+  display: grid;
+  gap: 14px;
+  justify-items: center;
+}
+.svc-empty-ic {
+  width: 86px; height: 86px;
+  border-radius: 50%;
+  display: grid; place-items: center;
+  color: var(--brass);
+  border: 1.5px dashed color-mix(in srgb, var(--brass) 60%, transparent);
+  background: color-mix(in srgb, var(--brass) 8%, transparent);
+}
+.svc-empty-ic svg { width: 46px; height: 46px; }
+.svc-empty p { color: var(--ink-2); font-size: 14.5px; max-width: 34ch; line-height: 1.5; }
+
+/* -------------------------------------------------- переключатель условий */
+.terms-seg { padding: 0 16px 12px; }
+.terms-seg .seg button { padding: 0 4px; font-size: 13.5px; }
+.seg-wrap { flex-wrap: wrap; }
+.seg-wrap button { flex: 1 1 40%; padding: 6px 10px; line-height: 1.25; white-space: normal; }
+
+/* ------------------------------------------------ панель риелтора в услугах */
+.svc-admin { margin: 12px 16px 0; display: grid; gap: 10px; }
+.svc-edit-btn { min-height: 44px; border-color: var(--clay); color: var(--clay); }
+.svc-edit-btn svg { width: 18px; height: 18px; }
+.nw { white-space: nowrap; }
+.svc-admin:empty { display: none; }
+.biz-card {
+  padding: 14px;
+  border-radius: var(--radius);
+  background: var(--clay-soft);
+  border: 1px solid var(--clay);
+  display: grid;
+  gap: 10px;
+}
+.biz-card h3 { font-size: 14px; color: var(--clay); }
+.biz-card p { font-size: 13.5px; color: var(--ink-2); line-height: 1.45; }
+.biz-card .btn { min-height: 44px; }
+.biz-card .btn-row.two .btn { font-size: 14px; }
+
+.admin-bar-tools { display: flex; gap: 6px; flex-wrap: wrap; margin: 8px 16px 0; }
+.admin-bar-tools button {
+  flex: 1 1 auto;
+  min-height: 38px;
+  padding: 0 12px;
+  border-radius: 10px;
+  border: 1px solid var(--clay);
+  background: var(--card);
+  color: var(--clay);
+  font-size: 13.5px;
+  font-weight: 700;
+  display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+}
+.admin-bar-tools svg { width: 16px; height: 16px; }
+
+/* ------------------------------------------------------------------ отчёт */
+.rep-month { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 0 16px 12px; }
+.rep-month b { font-size: 17px; text-transform: capitalize; }
+.rep-month button {
+  width: 42px; height: 42px; border-radius: 12px;
+  border: 1px solid var(--line-strong); background: var(--card);
+  font-size: 20px; font-weight: 700; display: grid; place-items: center;
+}
+.rep-month button[disabled] { opacity: .35; }
+.rep-tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 16px; }
+.rep-tile { padding: 13px 14px; border-radius: 14px; background: var(--card); border: 1px solid var(--line); display: grid; gap: 2px; min-width: 0; }
+.rep-tile > span { font-size: 12.5px; color: var(--ink-3); font-weight: 600; }
+.rep-tile b { font-size: 19px; letter-spacing: -.01em; overflow-wrap: anywhere; }
+.rep-tile > small { font-size: 12px; color: var(--ink-3); }
+.rep-tile.main { grid-column: 1 / -1; background: linear-gradient(150deg, var(--green-soft), transparent 70%), var(--card); }
+.rep-tile.main b { font-size: 26px; color: var(--green); }
+.rep-tile.neg b { color: var(--clay); }
+.rep-note { padding: 8px 16px 0; font-size: 12px; color: var(--ink-3); }
+.rep-list { display: grid; gap: 8px; padding: 0 16px; }
+.rep-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 12px;
+  border-radius: 12px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  text-align: left;
+  width: 100%;
+}
+.rep-row .k {
+  flex: none; min-width: 58px; padding: 4px 8px; border-radius: 8px;
+  background: var(--green-soft); color: var(--green);
+  font-size: 11.5px; font-weight: 800; text-align: center;
+}
+.rep-row .k.visa { background: color-mix(in srgb, var(--brass) 16%, transparent); color: var(--brass); }
+.rep-row .k.tour { background: var(--clay-soft); color: var(--clay); }
+.rep-row .k.car, .rep-row .k.other { background: var(--card-2); color: var(--ink-2); }
+.rep-row .t { flex: 1; min-width: 0; display: grid; gap: 1px; }
+.rep-row .t b { font-size: 14.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rep-row .t small { font-size: 12px; color: var(--ink-3); }
+.rep-row .a { flex: none; text-align: right; font-size: 14.5px; font-weight: 800; }
+.rep-row .a.need { color: var(--clay); font-weight: 700; font-size: 12.5px; }
+.rep-row .a small { display: block; font-size: 11.5px; color: var(--clay); font-weight: 700; }
+.rep-empty { padding: 14px 16px; color: var(--ink-3); font-size: 14px; }
+
+.stop-row { display: grid; gap: 8px; padding: 12px; border-radius: 12px; border: 1px solid var(--line); background: var(--card); }
+.stop-row .stop-top { display: flex; gap: 8px; align-items: center; }
+.stop-row .stop-top b { flex: none; width: 26px; height: 26px; border-radius: 8px; border: 1.5px solid var(--brass); color: var(--brass); display: grid; place-items: center; font-size: 12.5px; }
+.stop-row .stop-top input { flex: 1; }
+.stop-row .stop-top button { flex: none; width: 36px; height: 36px; border-radius: 10px; border: 1px solid var(--line-strong); background: var(--card); color: #d0452b; font-size: 18px; font-weight: 700; }
+.car-ed { display: grid; gap: 10px; padding: 12px; border-radius: 14px; border: 1px solid var(--line-strong); background: var(--card); }
+.car-ed .ed-media { grid-template-columns: repeat(4, 1fr); }
+
+/* ------------------------------------------------------ узкие телефоны */
+.appbar-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@media (max-width: 360px) {
+  .appbar-row { gap: 9px; }
+  .appbar-logo { width: 34px; height: 34px; }
+  .lang-seg button { min-width: 32px; padding: 0 6px; }
+  .tab { font-size: 9.5px; }
+  .subnav button svg { display: none; }
+}
+
+/* ---------------------------------------------------- виды виз и икама */
+.svc-badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+.svc-badges .svc-badge { margin-top: 0; }
+.svc-badge.is-24 { color: var(--clay); border-color: color-mix(in srgb, var(--clay) 45%, transparent); }
+.visa-chips { padding: 14px 16px 4px; }
+.visa-group { padding: 10px 16px 0; }
+.visa-group-h { display: grid; gap: 1px; padding: 8px 2px 10px; }
+.visa-group-h b { font-size: 13px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); font-weight: 800; }
+.visa-group-h span { font-size: 13px; color: var(--ink-3); }
+.visa-list { display: grid; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); overflow: hidden; }
+.visa-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 12px 12px 14px; text-align: left; }
+.visa-row + .visa-row { border-top: 1px solid var(--line); }
+.visa-row:active { background: var(--green-soft); }
+.visa-row .svc-ic { width: 40px; height: 40px; border-radius: 12px; }
+.visa-row .svc-ic svg { width: 22px; height: 22px; }
+.vr-t { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.vr-t b { font-size: 15.5px; font-weight: 650; line-height: 1.3; }
+.vr-t small { font-size: 13px; color: var(--ink-2); line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.vr-go { flex: none; color: var(--ink-3); }
+.vr-go svg { width: 18px; height: 18px; display: block; }
+.visa-group.is-iqama .visa-list { border-color: color-mix(in srgb, var(--brass) 40%, transparent); }
+.visa-group.is-iqama .svc-ic { background: color-mix(in srgb, var(--brass) 14%, transparent); color: var(--brass); }
+.visa-price-note {
+  margin: 14px 16px 0; padding: 12px 14px; border-radius: 12px;
+  display: flex; gap: 10px; align-items: flex-start;
+  background: var(--clay-soft); color: var(--ink); font-size: 14px; line-height: 1.45;
+}
+.visa-price-note svg { width: 18px; height: 18px; flex: none; color: var(--clay); margin-top: 1px; }
+.rq-desc { display: grid; gap: 4px; padding: 10px 12px; border-radius: 12px; background: var(--card-2); border: 1px solid var(--line); font-size: 13.5px; color: var(--ink-2); line-height: 1.45; }
+.rq-desc:empty { display: none; }
+.rq-desc b { color: var(--clay); font-weight: 700; }
+.field.err select { border-color: #d0452b; }
+
+/* ---------------------------------------------------------- машины */
+.svc-car-media .badge { top: 12px; left: 12px; }
+.car-art {
+  position: absolute; inset: 0;
+  display: grid; place-items: center;
+  background: radial-gradient(120% 90% at 50% 100%, color-mix(in srgb, var(--brass) 18%, transparent), transparent 60%),
+              linear-gradient(170deg, var(--card), var(--card-2));
+  overflow: hidden;
+}
+.car-art .pattern { position: absolute; width: 58%; right: -9%; top: -20%; color: var(--brass); opacity: .13; }
+.car-art .car-svg { width: 86%; max-width: 380px; position: relative; filter: drop-shadow(0 10px 14px rgba(0, 0, 0, .18)); }
+.car-art-note {
+  position: absolute; right: 12px; bottom: 12px;
+  padding: 5px 10px; border-radius: 999px;
+  background: color-mix(in srgb, var(--card) 88%, transparent); border: 1px solid var(--line);
+  font-size: 12px; font-weight: 700; color: var(--ink-3);
+}
+.svc-tag .sw { width: 12px; height: 12px; border-radius: 50%; box-shadow: 0 0 0 1px rgba(0, 0, 0, .25) inset, 0 0 0 1.5px var(--card); flex: none; }
+.svc-tag.is-trim { background: color-mix(in srgb, var(--brass) 12%, transparent); border-color: color-mix(in srgb, var(--brass) 35%, transparent); color: var(--ink); }
+.svc-tag.is-trim svg { color: var(--brass); }
+.car-busy { display: flex; gap: 8px; align-items: flex-start; font-size: 13.5px; color: var(--booked); font-weight: 600; }
+.car-busy svg { width: 17px; height: 17px; flex: none; margin-top: 1px; }
+.svc-car .btn svg { width: 19px; height: 19px; }
+.car-admin { display: grid; gap: 10px; padding: 12px; border-radius: 14px; background: var(--clay-soft); border: 1px solid var(--clay); }
+.car-admin .btn { min-height: 44px; font-size: 14.5px; }
+
+.term-chips { display: flex; gap: 6px; flex-wrap: wrap; }
+.term-chips button {
+  flex: 1 1 auto; min-height: 38px; padding: 0 12px; border-radius: 10px;
+  border: 1px solid var(--line-strong); background: var(--card); font-size: 14px; font-weight: 600; color: var(--ink-2);
+}
+.term-chips button.is-on { background: var(--green); border-color: var(--green); color: #fff; }
+.avail { display: flex; gap: 9px; align-items: flex-start; padding: 11px 13px; border-radius: 12px; font-size: 14px; font-weight: 600; line-height: 1.4; }
+.avail[hidden] { display: none; }
+.avail svg { width: 18px; height: 18px; flex: none; margin-top: 1px; }
+.avail.ok { background: color-mix(in srgb, var(--free) 12%, transparent); color: var(--free); }
+.avail.no { background: var(--booked-soft); color: var(--booked); }
+.car-calc { display: grid; gap: 2px; padding: 12px 14px; border-radius: 12px; background: var(--card); border: 1px dashed var(--line-strong); }
+.car-calc[hidden] { display: none; }
+.car-calc span { font-size: 13px; color: var(--ink-3); font-weight: 600; }
+.car-calc b { font-size: 20px; font-weight: 800; }
+.car-calc small { font-size: 12.5px; color: var(--ink-3); }
+.busy-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 10px; background: var(--card-2); border: 1px solid var(--line); font-size: 14px; }
+.busy-row span { flex: 1; }
+.busy-row button { width: 32px; height: 32px; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--card); color: #d0452b; font-weight: 700; }
+.vis-row { display: flex; align-items: center; gap: 10px; padding: 9px 2px; border-bottom: 1px solid var(--line); font-size: 14.5px; }
+.vis-row:last-child { border-bottom: 0; }
+.vis-row input { width: 20px; height: 20px; accent-color: var(--green); flex: none; }
+.vis-cat { font-size: 12px; letter-spacing: .07em; text-transform: uppercase; color: var(--ink-3); font-weight: 800; margin-top: 8px; }
+
+/* фото модели из интернета: пометка на фото и подпись автора (CC BY-SA) */
+.car-stock {
+  position: absolute; left: 12px; bottom: 12px; z-index: 2;
+  padding: 5px 10px; border-radius: 999px;
+  background: rgba(20, 18, 14, .62); color: #fff;
+  font-size: 12px; font-weight: 700; letter-spacing: .01em;
+  backdrop-filter: blur(4px);
+}
+.car-credit { margin-top: -6px; text-align: left; font-size: 11.5px; line-height: 1.35; color: var(--ink-3); }
+
+/* обложка тура (если админ загрузил фото) */
+.svc-card.has-cover { padding-top: 0; overflow: hidden; }
+.svc-cover { margin: 0 -16px; aspect-ratio: 16 / 9; background: var(--card-2); overflow: hidden; }
+.svc-cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tab[hidden], .subnav button[hidden] { display: none; }
+.subnav.is-single { display: none; }
+
+/* ==========================================================================
+   Админ-панель /admin
+   ========================================================================== */
+body.on-admin .screen { padding-bottom: 28px; }
+.adm-head { display: flex; align-items: center; gap: 14px; margin: 16px 16px 12px; }
+.adm-logo { width: 54px; height: 54px; border-radius: 50%; object-fit: cover; flex: none; background: #efe9df;
+  box-shadow: 0 0 0 1.5px #c9a24a, 0 3px 10px rgba(45, 32, 12, .18); }
+.adm-head h1 { font-size: 22px; }
+.adm-head p { color: var(--ink-3); font-size: 13px; margin-top: 2px; }
+.adm-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 0 16px 14px; }
+.adm-stat { padding: 10px 8px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); text-align: center; display: grid; gap: 1px; }
+.adm-stat b { font-size: 19px; color: var(--green); }
+.adm-stat span { font-size: 11.5px; color: var(--ink-3); line-height: 1.25; }
+.adm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 0 16px; }
+.adm-tile {
+  display: grid; gap: 4px; align-content: start; text-align: left;
+  padding: 14px; border-radius: 16px; background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow);
+  min-height: 118px;
+}
+.adm-tile:active { transform: scale(.985); }
+.adm-tile-ic { width: 38px; height: 38px; border-radius: 11px; background: var(--green-soft); color: var(--green); display: grid; place-items: center; margin-bottom: 4px; }
+.adm-tile-ic svg { width: 21px; height: 21px; }
+.adm-tile b { font-size: 15px; line-height: 1.25; }
+.adm-tile small { font-size: 12.5px; color: var(--ink-3); line-height: 1.35; }
+.adm-foot { margin: 16px; display: grid; gap: 10px; }
+.adm-foot p { font-size: 13px; color: var(--ink-3); text-align: center; }
+
+.adm-denied { margin: 40px 20px; padding: 26px 20px; border-radius: var(--radius); background: var(--card); border: 1px solid var(--line);
+  text-align: center; display: grid; gap: 12px; justify-items: center; }
+.adm-denied-ic { width: 64px; height: 64px; border-radius: 50%; display: grid; place-items: center; background: var(--clay-soft); color: var(--clay); }
+.adm-denied-ic svg { width: 30px; height: 30px; }
+.adm-denied h2 { font-size: 20px; }
+.adm-denied p { color: var(--ink-2); font-size: 14.5px; line-height: 1.5; max-width: 34ch; }
+.adm-denied .adm-id { font-size: 15px; color: var(--ink); }
+.adm-denied .btn { width: auto; padding: 0 22px; }
+
+.admin-bar-tools button.is-main { background: var(--green); border-color: var(--green); color: #fff; flex-basis: 100%; }
+
+/* редакторы */
+.ml-field { gap: 6px; }
+.ml-row { display: flex; gap: 8px; align-items: flex-start; }
+.ml-tag { flex: none; width: 30px; margin-top: 13px; font-size: 11px; font-weight: 800; color: var(--ink-3); letter-spacing: .04em; }
+.ml-row input, .ml-row textarea { flex: 1; min-width: 0; min-height: 44px; padding: 10px 12px; border-radius: 11px;
+  border: 1px solid var(--line-strong); background: var(--card); font-size: 15px; width: 100%; }
+.ml-row textarea { min-height: 64px; resize: vertical; line-height: 1.45; }
+.ml-row input:focus, .ml-row textarea:focus { outline: 2px solid var(--green); outline-offset: -1px; }
+.ac-item { border: 1px solid var(--line-strong); border-radius: 14px; background: var(--card); overflow: hidden; }
+.ac-item + .ac-item { margin-top: -4px; }
+.ac-item summary { list-style: none; display: flex; align-items: center; gap: 8px; padding: 10px 10px 10px 14px; cursor: pointer; min-height: 52px; }
+.ac-item summary::-webkit-details-marker { display: none; }
+.ac-item[open] summary { border-bottom: 1px solid var(--line); background: var(--card-2); }
+.ac-item.is-hidden .ac-sum { opacity: .5; }
+.ac-sum { flex: 1; min-width: 0; font-weight: 650; font-size: 14.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ac-sum em { font-style: normal; font-size: 12px; color: var(--clay); font-weight: 700; }
+.ac-body { padding: 12px; display: grid; gap: 12px; }
+.ac-tools { display: flex; gap: 4px; flex: none; }
+.ac-tools button { width: 34px; height: 34px; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--card); color: var(--ink-2); display: grid; place-items: center; }
+.ac-tools button svg { width: 17px; height: 17px; }
+.ac-tools button.is-off { color: var(--clay); border-color: var(--clay); }
+.ac-tools button.del { color: #d0452b; }
+.ac-row { display: flex; align-items: center; gap: 8px; }
+.ac-row.is-hidden .ac-row-main { opacity: .5; }
+.ac-row-main { flex: 1; min-width: 0; display: grid; gap: 2px; text-align: left; padding: 11px 13px; border-radius: 12px; background: var(--card); border: 1px solid var(--line); }
+.ac-row-main.is-static { cursor: default; }
+.ac-row-main b { font-size: 14.5px; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ac-row-main small { font-size: 12.5px; color: var(--ink-3); }
+.badge-mini { justify-self: start; font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px; color: #fff; background: var(--free); }
+.badge-mini.st-booked { background: var(--booked); }
+.badge-mini.st-busy { background: var(--busy); }
+.badge-mini.st-rented { background: #6d655a; }
+.badge-mini.st-draft { background: var(--ink); color: var(--bg); }
+.ac-chips { padding: 0 0 4px; margin: 0 -16px; padding-left: 16px; }
+.ac-t { padding: 12px; border-radius: 14px; border: 1px solid var(--line); background: var(--card); display: grid; gap: 6px; }
+.ac-t.is-changed { border-color: var(--clay); box-shadow: 0 0 0 1px var(--clay) inset; }
+.ac-t-h { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.ac-t-h b { font-size: 13.5px; flex: 1 1 60%; }
+.ac-t-h code { font-size: 11px; color: var(--ink-3); }
+.ac-t-h button { font-size: 12px; font-weight: 700; color: var(--green); padding: 2px 4px; }
+.ac-img { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+.ac-img img { width: 120px; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 10px; border: 1px solid var(--line); }
+.ac-img.big img { width: 96px; height: 96px; aspect-ratio: 1; border-radius: 50%; box-shadow: 0 0 0 1.5px #c9a24a; }
+.ac-img .btn { width: auto; min-height: 42px; padding: 0 14px; font-size: 14px; }
+.ac-upload { position: relative; overflow: hidden; }
+.ac-upload input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
+.ac-upload.is-busy { opacity: .6; pointer-events: none; }
+.ac-t:not(.is-changed) .ac-t-h button { visibility: hidden; }

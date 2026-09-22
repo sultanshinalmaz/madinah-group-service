@@ -1,0 +1,11 @@
+# Caddy сам получает https-сертификат для домена и передаёт всё Node-серверу.
+# Node (bot/server.js) отдаёт приложение, загруженные фото и видео, API и бота.
+# Замените madinah-group.duckdns.org на свой домен.
+
+madinah-group.duckdns.org {
+	encode gzip
+	request_body {
+		max_size 320MB
+	}
+	reverse_proxy 127.0.0.1:8443
+}
