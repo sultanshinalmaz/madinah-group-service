@@ -261,7 +261,6 @@
       if (!b.hidden) shown++;
     });
     bar.style.gridTemplateColumns = 'repeat(' + Math.max(1, shown) + ', 1fr)';
-    bar.classList.toggle('is-tight', shown > 5);        // шесть вкладок — надписи мельче, чтобы влезли
     var nav = $('#housingNav');
     nav.querySelector('[data-screen="map"]').hidden = !blockOn('housingMap');
     nav.querySelector('[data-screen="fav"]').hidden = !blockOn('housingFav');
@@ -1268,6 +1267,7 @@
       } catch (e) {}
     }
     applyTheme();
+    applyLayout();                 // вкладки раскладываем сразу: без сервера ответа ждать неоткуда
     bindGlobal();
 
     // пока идёт заставка, узнаём, есть ли сервер, и подтягиваем свежий каталог

@@ -4,9 +4,9 @@
    Узор тот же, что везде: восьмиконечная звезда (руб аль-хизб) и латунь решётки.
    ========================================================================== */
 
-/* ------------------------------------------------------------- 5 вкладок */
-.tabbar { grid-template-columns: repeat(5, 1fr); }
-.tab { font-size: 10.5px; min-width: 0; }
+/* --------------------------------------------- шесть вкладок в одну строку */
+.tabbar { grid-template-columns: repeat(6, 1fr); }
+.tab { font-size: 9.5px; min-width: 0; }
 .tab span { max-width: 100%; padding: 0 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .appbar-sub { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
@@ -308,7 +308,9 @@
   .appbar-row { gap: 9px; }
   .appbar-logo { width: 34px; height: 34px; }
   .lang-seg button { min-width: 32px; padding: 0 6px; }
-  .tab { font-size: 9.5px; }
+  .tab { font-size: 9px; gap: 2px; }
+  .tab svg { width: 20px; height: 20px; }
+  .tab span { padding: 0; letter-spacing: -.015em; }   /* «Квартиры» и «Трансфер» должны влезать целиком */
   .subnav button svg { display: none; }
 }
 

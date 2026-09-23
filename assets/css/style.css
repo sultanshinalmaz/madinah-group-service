@@ -485,9 +485,6 @@ a { color: var(--green); text-decoration: none; }
   backdrop-filter: saturate(140%) blur(16px);
   border-top: 1px solid var(--line);
 }
-/* шесть вкладок на узком экране: подписи мельче, иначе обрезаются */
-.tabbar.is-tight .tab { font-size: 9.5px; gap: 2px; }
-.tabbar.is-tight .tab svg { width: 21px; height: 21px; }
 .tab {
   display: flex;
   flex-direction: column;
