@@ -842,11 +842,16 @@
      текст заодно копируем — если окно почему-то не откроется, его можно вставить руками. */
   function sendViaTg(text) {
     copyText(text);
-    // адрес обязателен: без него t.me/share уводит на главную Telegram. Заодно Абдуллах видит, откуда заявка
-    var home = /^https?:$/.test(location.protocol) ? location.origin + '/' : D.brand.channel;
-    var url = 'https://t.me/share/url?url=' + encodeURIComponent(home) + '&text=' + encodeURIComponent(text);
+    // Открываем сразу личный чат риелтора и подставляем заявку в поле сообщения.
+    // Telegram официально поддерживает t.me/<username>?text=<draft_text>.
+    var username = (D.contacts && D.contacts.brothers && D.contacts.brothers.tg) || '';
+    var url = username
+      ? 'https://t.me/' + encodeURIComponent(username) + '?text=' + encodeURIComponent(text)
+      : 'https://t.me/share/url?url=' + encodeURIComponent(location.origin + '/') + '&text=' + encodeURIComponent(text);
     if (TG && TG.initData && TG.openTelegramLink && tgv('6.1')) { TG.openTelegramLink(url); return; }
-    window.open(url, '_blank');                      // в браузере — новая вкладка, приложение остаётся открытым
+    // В обычном браузере не используем window.open: его может заблокировать popup blocker.
+    // Переход в текущей вкладке гарантированно передаёт ссылку системному обработчику Telegram.
+    window.location.assign(url);
   }
 
   function copyText(text) {
