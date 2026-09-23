@@ -115,7 +115,7 @@ const server = http.createServer((req, res) => {
     app.botUsername();
     if (WEBHOOK_URL) {
       app.tg('setWebhook', Object.assign({ url: WEBHOOK_URL, allowed_updates: ['message', 'callback_query'], max_connections: 1 },
-        cfg('WEBHOOK_SECRET') ? { secret_token: cfg('WEBHOOK_SECRET') } : {}))
+        app.WEBHOOK_SECRET ? { secret_token: app.WEBHOOK_SECRET } : {}))
         .then(() => console.log('Webhook: ' + WEBHOOK_URL))
         .catch(e => console.error('setWebhook:', e.message));
     } else {

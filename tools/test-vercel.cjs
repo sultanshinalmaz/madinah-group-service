@@ -317,6 +317,29 @@ function check(name, cond, info) {
   delete tgFail.sendMessage; delete tgFail.sendChatAction;
   check('в диагностике нет токена', !diag.text.includes(TOKEN) && !diag2.text.includes(TOKEN));
 
+  /* ---- APP_URL и WEBHOOK_SECRET не заданы: адрес берётся из Vercel, пароль — из токена ---- */
+  const keepEnv = { APP_URL: process.env.APP_URL, WEBHOOK_SECRET: process.env.WEBHOOK_SECRET };
+  delete process.env.APP_URL; delete process.env.WEBHOOK_SECRET;
+  process.env.VERCEL_PROJECT_PRODUCTION_URL = 'madinah-group-service.vercel.app';
+  tgCalls.length = 0;
+  app = freshApp();
+  await call('/api/health');
+  const sw = tgCalls.filter(c => c.method === 'setWebhook').slice(-1)[0];
+  check('APP_URL не задан — адрес берётся из настроек проекта Vercel', !!sw && sw.payload.url === 'https://madinah-group-service.vercel.app/api/webhook', sw && sw.payload.url);
+  const secret = (sw && sw.payload.secret_token) || '';
+  check('WEBHOOK_SECRET не задан — пароль вебхука всё равно есть', /^[0-9a-f]{48}$/.test(secret));
+  const fakeClick = JSON.stringify({ update_id: 900001, callback_query: { id: 'x', data: 'bk:nope:ok', from: { id: ADMIN }, message: { message_id: 1, chat: { id: ADMIN } } } });
+  const forged = await call('/api/webhook', { method: 'POST', headers: jsonHdr(), body: fakeClick });
+  check('поддельное «нажатие кнопки» от имени админа без пароля → 403', forged.status === 403);
+  const realHook = await call('/api/webhook', { method: 'POST', headers: jsonHdr({ 'X-Telegram-Bot-Api-Secret-Token': secret }),
+    body: JSON.stringify({ update_id: 900002, message: { message_id: 9, chat: { id: 111222333, type: 'private' }, from: { id: 111222333, language_code: 'ru' }, text: '/start' } }) });
+  check('с правильным паролем Telegram достукивается до бота', realHook.status === 200);
+  const menu = tgCalls.filter(c => c.method === 'setChatMenuButton').slice(-1)[0];
+  check('кнопка Mini App указывает на боевой адрес', !!menu && menu.payload.menu_button.web_app.url === 'https://madinah-group-service.vercel.app/',
+    menu && menu.payload.menu_button.web_app.url);
+  Object.assign(process.env, keepEnv); delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
+  app = freshApp();
+
   console.log('\nИтого: ' + ok + ' из ' + (ok + fail));
   server.close();
   process.exit(fail ? 1 : 0);
