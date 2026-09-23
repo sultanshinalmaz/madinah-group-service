@@ -833,18 +833,19 @@
       '</div>';
     // одна кнопка: Telegram открывается с готовой заявкой, остаётся выбрать чат и отправить
     $('#bookScroll').onclick = function (e) {
-      if (e.target.closest('[data-done]')) sendViaTg(text);
+      if (e.target.closest('[data-done]')) sendViaTg(text, person.tg);     // семья и братья — Абдуллаху, сёстры — сестре
     };
   }
 
   /* Заявка уходит в Telegram уже готовым сообщением: остаётся выбрать чат и нажать «Отправить».
      Ссылку «сразу в чат с текстом» Telegram не поддерживает, поэтому открываем окно «Поделиться»;
      текст заодно копируем — если окно почему-то не откроется, его можно вставить руками. */
-  function sendViaTg(text) {
+  function sendViaTg(text, to) {
     copyText(text);
-    // Открываем сразу личный чат риелтора и подставляем заявку в поле сообщения.
+    // Открываем сразу личный чат нужного человека и подставляем заявку в поле сообщения.
     // Telegram официально поддерживает t.me/<username>?text=<draft_text>.
-    var username = (D.contacts && D.contacts.brothers && D.contacts.brothers.tg) || '';
+    // to — кому: сёстрам — ник сестёр, визам — визовая компания; по умолчанию Абдуллах.
+    var username = to || (D.contacts && D.contacts.brothers && D.contacts.brothers.tg) || '';
     var url = username
       ? 'https://t.me/' + encodeURIComponent(username) + '?text=' + encodeURIComponent(text)
       : 'https://t.me/share/url?url=' + encodeURIComponent(location.origin + '/') + '&text=' + encodeURIComponent(text);

@@ -724,7 +724,7 @@
       '</div>';
     // одна кнопка: Telegram открывается с готовой заявкой, остаётся выбрать чат и отправить
     $('#bookScroll').onclick = function (e) {
-      if (e.target.closest('[data-rq-done]')) MR.sendViaTg(text);
+      if (e.target.closest('[data-rq-done]')) MR.sendViaTg(text, tg);      // визы — компании, если она указана
     };
   }
 

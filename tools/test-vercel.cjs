@@ -55,6 +55,9 @@ const blobStub = {
 /* -------------------------------------------------- эмулятор Telegram */
 const sent = [];           // что бот отправил
 const tgCalls = [];        // какие методы вызывались
+const delivered = [];      // на какие запросы Telegram УЖЕ ответил (как в жизни: не мгновенно)
+const tgFail = {};         // метод → текст ошибки, чтобы проверить поведение при сбое Telegram
+let tgDelay = 0;           // задержка ответа Telegram, мс
 const tgReply = {
   getMe: { ok: true, result: { id: 7000000000, username: 'MadinahGroupTestBot' } },
   setWebhook: { ok: true, result: true },
@@ -74,14 +77,17 @@ https.request = function (opts, cb) {
   const req = {
     on: () => req, setTimeout: () => req,
     write: (c) => { body += c; return true; },
-    end: () => {
+    end: (c) => {
+      if (c) body += c;                           // тело может прийти и в end(body)
       const payload = (() => { try { return JSON.parse(body || '{}'); } catch (e) { return {}; } })();
       tgCalls.push({ method, payload });
       if (method === 'sendMessage') sent.push({ chat: payload.chat_id, text: payload.text, kb: payload.reply_markup });
-      setImmediate(() => {
+      setTimeout(() => {
         cb(res);
-        res.end(JSON.stringify(tgReply[method] || { ok: true, result: {} }));
-      });
+        const fail = tgFail[method];
+        if (!fail) delivered.push({ method, chat: payload.chat_id, text: payload.text || '' });
+        res.end(JSON.stringify(fail ? { ok: false, description: fail } : (tgReply[method] || { ok: true, result: {} })));
+      }, tgDelay);
     },
     destroy: () => {}
   };
@@ -264,6 +270,52 @@ function check(name, cond, info) {
 
   const all = [health.text, cat.text, admCat.text, JSON.stringify(sent)].join(' ');
   check('токен бота никуда не утекает', !all.includes(TOKEN) && !all.includes('BLOB_READ_WRITE'));
+
+  /* ---- главное: сообщение доставлено ДО ответа (на Vercel функция засыпает сразу после него) ---- */
+  tgDelay = 250;                                     // Telegram отвечает не мгновенно
+  delivered.length = 0;
+  const vs2 = await call('/api/request', { method: 'POST', headers: jsonHdr(asUser()),
+    body: JSON.stringify({ kind: 'tour', item: '', name: 'Юсуф', phone: '+998901112233', date: '2026-12-01', people: 3, lang: 'ru' }) });
+  check('заявка на тур доставлена в Telegram до ответа клиенту', vs2.status === 200 && delivered.some(d => d.method === 'sendMessage' && /ЗАЯВКА НА ТУР/.test(d.text)),
+    'доставлено к моменту ответа: ' + delivered.length);
+
+  delivered.length = 0;
+  const bk2 = await call('/api/booking', { method: 'POST', headers: jsonHdr(asUser()), body: JSON.stringify({ apartment: saved.data.apartment.id, name: 'Юсуф', phone: '+998901112233', who: 'brothers', people: 2, date: '2026-10-02', term: 'month', lang: 'ru' }) });
+  check('бронь доставлена риелтору и клиенту до ответа', bk2.status === 200 &&
+    delivered.some(d => d.chat === ADMIN && /НОВАЯ ЗАЯВКА/.test(d.text)) && delivered.some(d => d.chat === 111222333),
+    'доставлено: ' + delivered.map(d => d.method + '→' + d.chat).join(', '));
+
+  // риелтор нажал «✅ Забронировать» под заявкой — клиент получает ответ, кнопки меняются
+  const bkId = (await new pgStub.Pool().query("select data from docs where key = 'bookings'")).rows[0].data.slice(-1)[0].id;
+  delivered.length = 0;
+  const cb = await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: JSON.stringify({ update_id: 777001,
+    callback_query: { id: 'cq1', data: 'bk:' + bkId + ':ok', from: { id: ADMIN, first_name: 'Abdullah' },
+      message: { message_id: 55, chat: { id: ADMIN, type: 'private' } } } }) });
+  check('кнопка под заявкой: клиенту ответ, кнопки обновлены — всё до ответа Telegram-у', cb.status === 200 &&
+    delivered.some(d => d.method === 'sendMessage' && d.chat === 111222333) &&
+    delivered.some(d => d.method === 'editMessageReplyMarkup') && delivered.some(d => d.method === 'answerCallbackQuery'),
+    delivered.map(d => d.method).join(', '));
+
+  /* ---- Telegram не принимает сообщения: честная ошибка, процесс не падает ---- */
+  tgDelay = 0;
+  tgFail.sendMessage = "Forbidden: bot can't initiate conversation with a user";
+  const bad = await call('/api/request', { method: 'POST', headers: jsonHdr(asUser()),
+    body: JSON.stringify({ kind: 'car', item: '', name: 'Юсуф', phone: '+998901112233', date: '2026-12-05', dateTo: '2026-12-07', people: 2, lang: 'ru' }) });
+  check('Telegram отказал — клиенту 502, приложение предложит отправить вручную', bad.status === 502 && bad.data.telegram === false, JSON.stringify(bad.data));
+  const alive = await call('/api/health');
+  check('после сбоя Telegram сервер жив (нет необработанных ошибок)', alive.status === 200 && alive.data.ok === true);
+
+  /* ---- диагностика: /api/health?telegram=1 ---- */
+  const diag = await call('/api/health?telegram=1');
+  const t = (diag.data && diag.data.telegram) || {};
+  check('диагностика: токен, бот, адрес приложения, вебхук', t.token === 'ok' && t.bot === '@MadinahGroupTestBot' && typeof t.appUrlOk === 'boolean' && !!t.webhook,
+    JSON.stringify({ token: t.token, bot: t.bot, appUrlOk: t.appUrlOk, webhook: t.webhook }));
+  tgFail.sendChatAction = "Forbidden: bot can't initiate conversation with a user";
+  const diag2 = await call('/api/health?telegram=1');
+  const adm = ((diag2.data && diag2.data.telegram) || {}).admins || [];
+  check('диагностика подсказывает: админ должен нажать «Старт» у бота', adm.some(a => /нажать «Старт»/.test(a)), adm.join(' | '));
+  delete tgFail.sendMessage; delete tgFail.sendChatAction;
+  check('в диагностике нет токена', !diag.text.includes(TOKEN) && !diag2.text.includes(TOKEN));
 
   console.log('\nИтого: ' + ok + ' из ' + (ok + fail));
   server.close();

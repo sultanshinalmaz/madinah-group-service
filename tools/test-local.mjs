@@ -129,7 +129,10 @@ test('CORS: свой адрес (APP_URL) разрешён', r.headers.get('acce
 r = await req('GET', '/api/catalog');
 test('каталог открыт всем, черновиков и сданных нет', r.status === 200 && r.j.apartments.every(a => a.status !== 'draft' && a.status !== 'rented'), r.j.apartments.length);
 r = await req('POST', '/api/request', { init: INIT_USER, body: { kind: 'visa', item: 'tourist', people: 1, name: 'IVANOV IVAN', date: '2026-11-10', lang: 'ru' } });
-test('заявка на визу от обычного пользователя принимается', r.status === 200 && r.j.ok, JSON.stringify(r.j));
+// токен тут поддельный: Telegram заявку не примет — сервер должен честно сказать «не дошло» (502),
+// а не делать вид, что всё отправлено. Главное — обычного пользователя не отсекли как чужого.
+test('заявка на визу от обычного пользователя принимается (Telegram тут недоступен — честный 502)',
+  (r.status === 200 && r.j.ok) || (r.status === 502 && r.j.telegram === false), JSON.stringify(r.j));
 test('BOT_TOKEN не попадает во фронтенд и ответы API', !JSON.stringify((await req('GET', '/api/catalog')).j).includes(TOKEN) && !fs.readdirSync(ROOT + '/assets/js').some(f => fs.readFileSync(ROOT + '/assets/js/' + f, 'utf8').includes('BOT_TOKEN')), '');
 
 srv.kill();
@@ -138,3 +141,4 @@ console.log(results.map(x => x.join(' | ')).join('\n'));
 console.log('\nИтого: ' + results.filter(x => x[0].startsWith('OK')).length + ' из ' + results.length);
 console.log('\nЛог сервера (начало):\n' + log.split('\n').slice(0, 6).join('\n'));
 fs.rmSync(DATA, { recursive: true, force: true });
+process.exit(results.every(x => x[0].startsWith('OK')) ? 0 : 1);   // иначе npm test не заметит ошибку
