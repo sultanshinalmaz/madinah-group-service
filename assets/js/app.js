@@ -867,6 +867,40 @@
     document.body.removeChild(ta);
   }
 
+  /* ------------------------------------------------------------ плитки карты */
+  /* Своих серверов карт у нас нет. Волонтёрские серверы OpenStreetMap
+     закрывают доступ сторонним приложениям («Access blocked»), CARTO просит ключ —
+     поэтому основной источник Esri (бесплатный, без ключа), запасной — OpenStreetMap. */
+  var TILES = [
+    { url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}',
+      sub: 'abc', max: 19, attr: 'Esri · © OpenStreetMap' },
+    { url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+      sub: 'abc', max: 19, attr: '© OpenStreetMap' }
+  ];
+  function mapTiles(map, cfg) {
+    cfg = cfg || {};
+    var i = 0, layer = null, good = 0, bad = 0;
+    function add() {
+      var src = TILES[i];
+      layer = window.L.tileLayer(src.url, {
+        subdomains: src.sub,
+        minZoom: cfg.minZoom || 0,
+        maxZoom: Math.min(cfg.maxZoom || 19, src.max),
+        attribution: src.attr
+      });
+      bad = 0;
+      layer.on('tileload', function () { good++; if (cfg.ok) cfg.ok(); });
+      layer.on('tileerror', function () {
+        bad++;
+        if (good || bad <= 4) return;
+        if (i + 1 < TILES.length) { i++; map.removeLayer(layer); add(); return; }   // источник молчит — берём запасной
+        if (cfg.fail) cfg.fail();
+      });
+      layer.addTo(map);
+    }
+    add();
+  }
+
   function openLink(url) {
     if (!url) return;
     if (TG && /^https:\/\/t\.me\//.test(url) && TG.openTelegramLink) { TG.openTelegramLink(url); return; }
@@ -1240,7 +1274,7 @@
 
   /* ------------------------------------------------------ общее ядро */
   var MR = {
-    D: D, state: state, api: api, ICON: ICON, sendViaTg: sendViaTg,
+    D: D, state: state, api: api, ICON: ICON, sendViaTg: sendViaTg, mapTiles: mapTiles,
     t: t, tpl: tpl, L: L, esc: esc, money: money, word: word, nForm: nForm,
     haptic: haptic, hapticNotify: hapticNotify, alert: alertMsg,
     media: media, mediaCard: mediaCard, normalize: normalize,

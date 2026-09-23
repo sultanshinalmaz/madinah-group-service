@@ -190,7 +190,11 @@
       '<div class="ed-sec"><h3>' + t('adminPlace') + '</h3>' +
         '<div class="ed-hint">' + t('adminPlaceHint') + '</div>' +
         '<div class="ed-map" id="edMap"></div>' +
-        '<button class="btn btn-ghost" data-adm="pin-reset" style="min-height:42px">' + t('adminPlaceReset') + '</button></div>' +
+        '<div class="ed-grid2">' +
+          '<button class="btn btn-ghost" data-adm="pin-me" style="min-height:42px">' + t('adminGeoBtn') + '</button>' +
+          '<button class="btn btn-ghost" data-adm="pin-reset" style="min-height:42px">' + t('adminPlaceReset') + '</button>' +
+        '</div>' +
+        '<div class="ed-hint" id="edGeoText"></div></div>' +
 
       '<div class="ed-sec"><div class="field"><label for="edPost">' + t('adminPost') + '</label>' +
         '<input id="edPost" value="' + esc(ed.post || '') + '" placeholder="https://t.me/madinah_rent/400" inputmode="url"></div>' +
@@ -463,11 +467,13 @@
       if (edMap) { edMap.remove(); edMap = null; edMarker = null; }
       var c = ed.geo ? [ed.geo.lat, ed.geo.lng] : districtCenter();
       edMap = window.L.map(box, { zoomControl: true, attributionControl: false }).setView(c, ed.geo ? 16 : 15);
-      window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', { maxZoom: 19 }).addTo(edMap);
+      MR.mapTiles(edMap, { maxZoom: 19 });
       if (ed.geo) placePin(ed.geo.lat, ed.geo.lng);
+      showGeo();
       edMap.on('click', function (e) {
         ed.geo = { lat: +e.latlng.lat.toFixed(6), lng: +e.latlng.lng.toFixed(6) };
         placePin(ed.geo.lat, ed.geo.lng);
+        showGeo();
         MR.haptic('light');
       });
     }).catch(function () { box.textContent = t('mapOffline'); });
@@ -480,6 +486,28 @@
   function centerMiniMap() {
     if (!edMap) return;
     edMap.setView(districtCenter(), 15);
+  }
+  /* координаты под картой — видно, что точка поставлена */
+  function showGeo() {
+    var el = $('#edGeoText');
+    if (el) el.textContent = ed.geo ? MR.tpl('adminGeoAt', { c: ed.geo.lat + ', ' + ed.geo.lng }) : t('adminPlaceNone');
+  }
+  /* «Я здесь» — риелтор стоит в квартире, координаты берём с телефона */
+  function useMyLocation() {
+    var btn = $('[data-adm="pin-me"]');
+    if (!navigator.geolocation) { MR.alert(t('adminGeoErr')); return; }
+    if (btn) { btn.disabled = true; btn.textContent = t('adminGeoWait'); }
+    var done = function () { if (btn) { btn.disabled = false; btn.textContent = t('adminGeoBtn'); } };
+    navigator.geolocation.getCurrentPosition(function (pos) {
+      ed.geo = { lat: +pos.coords.latitude.toFixed(6), lng: +pos.coords.longitude.toFixed(6) };
+      if (edMap) { edMap.setView([ed.geo.lat, ed.geo.lng], 17); placePin(ed.geo.lat, ed.geo.lng); }
+      showGeo();
+      MR.hapticNotify('success');
+      done();
+    }, function () {
+      MR.alert(t('adminGeoErr'));
+      done();
+    }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
   }
 
   /* ------------------------------------------------------ собрать и сохранить */
@@ -590,7 +618,8 @@
       else if (k === 'delete') remove();
       else if (k === 'fill') fillFromPost();
       else if (k === 'translate') translate();
-      else if (k === 'pin-reset') { ed.geo = null; if (edMarker) { edMarker.remove(); edMarker = null; } centerMiniMap(); }
+      else if (k === 'pin-me') useMyLocation();
+      else if (k === 'pin-reset') { ed.geo = null; if (edMarker) { edMarker.remove(); edMarker = null; } centerMiniMap(); showGeo(); }
       return true;
     }
     var st = e.target.closest('[data-adm-st]');

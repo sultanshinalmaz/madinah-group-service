@@ -46,14 +46,10 @@
     map = window.L.map(box, { zoomControl: false, attributionControl: true, scrollWheelZoom: true, tap: true });
     window.L.control.zoom({ position: 'topright' }).addTo(map);
     map.attributionControl.setPrefix(false);
-    var tiles = window.L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19, minZoom: 11, attribution: '© OpenStreetMap'
-    }).addTo(map);
-    var loadedTiles = 0, badTiles = 0;
-    tiles.on('tileload', function () { loadedTiles++; document.getElementById('mapOffline').hidden = true; });
-    tiles.on('tileerror', function () {
-      badTiles++;
-      if (badTiles > 6 && !loadedTiles) offline();
+    MR.mapTiles(map, {
+      minZoom: 11, maxZoom: 19,
+      ok: function () { document.getElementById('mapOffline').hidden = true; },
+      fail: offline
     });
 
     // кольца расстояния от Харама

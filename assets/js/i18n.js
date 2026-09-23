@@ -1731,3 +1731,33 @@ window.AMENITIES = {
     visaCountryConsent: 'I accept the terms: the visa is issued by the embassy of the chosen country, the partner visa company handles the application, and Madinah Group is not liable for refusals or timing.'
   }
 });
+
+/* Карта: своя точка дома и координаты с телефона */
+(function (add) {
+  for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
+})({
+  ru: {
+    adminGeoBtn: 'Я здесь',
+    adminGeoWait: 'Ищу…',
+    adminGeoErr: 'Не получилось взять координаты. Разрешите доступ к геопозиции или поставьте точку на карте пальцем.',
+    adminGeoAt: 'Точка стоит: {c}',
+    adminPlaceNone: 'Точка не поставлена — нажмите на карту или «Я здесь».',
+    adminPlaceHint: 'Нажмите на карту, чтобы поставить точку дома. Если вы в этой квартире — нажмите «Я здесь».'
+  },
+  uz: {
+    adminGeoBtn: 'Men shu yerdaman',
+    adminGeoWait: 'Qidiryapman…',
+    adminGeoErr: 'Koordinatalarni olib bo\u2018lmadi. Joylashuvga ruxsat bering yoki nuqtani xaritada barmoq bilan qo\u2018ying.',
+    adminGeoAt: 'Nuqta qo\u2018yilgan: {c}',
+    adminPlaceNone: 'Nuqta qo\u2018yilmagan — xaritani bosing yoki «Men shu yerdaman»ni tanlang.',
+    adminPlaceHint: 'Uy nuqtasini qo\u2018yish uchun xaritani bosing. Agar shu kvartirada bo\u2018lsangiz — «Men shu yerdaman».'
+  },
+  en: {
+    adminGeoBtn: 'I am here',
+    adminGeoWait: 'Locating…',
+    adminGeoErr: 'Could not get your location. Allow location access or tap the map to place the pin.',
+    adminGeoAt: 'Pin set: {c}',
+    adminPlaceNone: 'No pin yet — tap the map or use “I am here”.',
+    adminPlaceHint: 'Tap the map to place the pin. If you are inside the apartment, tap “I am here”.'
+  }
+});
