@@ -1557,3 +1557,99 @@ window.AMENITIES = {
     admNoServer: 'The admin panel works when the app is opened from its own address, not from a file.'
   }
 });
+
+/* Заявка уходит готовым сообщением в Telegram, WhatsApp больше не используем */
+(function (add) {
+  for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
+})({
+  ru: {
+    sendTg: 'Отправить в Telegram',
+    bookPhone: 'Телефон',
+    contactErr: 'Укажите телефон — иначе с вами не смогут связаться',
+    ownerHint: 'PDF придёт в чат с ботом — оттуда перешлите его владельцу. Подписывается арабская версия.',
+    acBrandSub: 'название, о себе, канал, Telegram, часы',
+    sendFallbackNote: 'Откроется Telegram с готовым текстом — выберите чат Абдуллаха и нажмите «Отправить».',
+    mapApprox: 'Локация примерная'
+  },
+  uz: {
+    sendTg: 'Telegramga yuborish',
+    bookPhone: 'Telefon',
+    contactErr: 'Telefon raqamini yozing — aks holda siz bilan bog‘lanib bo‘lmaydi',
+    ownerHint: 'PDF bot bilan chatga keladi — u yerdan uy egasiga yuboring. Arabcha versiya imzolanadi.',
+    acBrandSub: 'nom, men haqimda, kanal, Telegram, soatlar',
+    sendFallbackNote: 'Telegram tayyor matn bilan ochiladi — Abdullah chatini tanlang va «Yuborish»ni bosing.',
+    mapApprox: 'Joylashuv taxminiy'
+  },
+  en: {
+    sendTg: 'Send via Telegram',
+    bookPhone: 'Phone',
+    contactErr: 'Please add a phone number so we can reach you',
+    ownerHint: 'The PDF arrives in your chat with the bot — forward it to the owner from there. The Arabic version is the one to sign.',
+    acBrandSub: 'name, about, channel, Telegram, hours',
+    sendFallbackNote: 'Telegram opens with the text ready — pick Abdullah\u2019s chat and press Send.',
+    mapApprox: 'Approximate location'
+  }
+});
+
+/* Трансфер: встреча в аэропорту */
+(function (add) {
+  for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
+})({
+  ru: {
+    trfTitle: 'Трансфер',
+    trfText: 'Встретим в аэропорту и довезём до квартиры. Машина с водителем, помощь с багажом.',
+    trfBtn: 'Заказать трансфер',
+    trfReqTitle: 'Заявка на трансфер',
+    trfPoints: ['Цена и машина — по согласованию', 'Встречаем у выхода, помогаем с багажом', 'Рейс задержали — водитель ждёт'],
+    trfConsent: 'Согласен(а): цена и машина — по согласованию, при задержке рейса — по договорённости.',
+    trfDate: 'Дата прилёта', trfTime: 'Время прилёта',
+    trfFrom: 'Откуда', trfTo: 'Куда',
+    trfFromPh: 'Аэропорт Медины, рейс SV 1234', trfToPh: 'Район или адрес в Медине',
+    trfPeople: 'Пассажиров', trfBags: 'Багаж', trfBagsYes: 'С багажом', trfBagsNo: 'Без багажа',
+    trfKids: 'Дети', trfChair: 'Инвалидная коляска', trfYes: 'Есть', trfNo: 'Нет',
+    trfNotePh: 'Например: рейс из Ташкента, нужно детское кресло',
+    trfDateErr: 'Укажите дату и время прилёта', trfRouteErr: 'Укажите, откуда и куда ехать',
+    trfPlaceMadAir: 'Аэропорт Медины', trfPlaceJedAir: 'Аэропорт Джидды', trfPlaceHaram: 'Харам',
+    trfPlaceMakkah: 'Мекка', trfPlaceHome: 'Квартира / отель',
+    repTransfer: 'трансфер',
+    aclb_carsTransfer: 'Блок «Трансфер» во вкладке «Авто»'
+  },
+  uz: {
+    trfTitle: 'Transfer',
+    trfText: 'Aeroportda kutib olamiz va kvartirangizgacha yetkazamiz. Haydovchili mashina, yuk bilan yordam.',
+    trfBtn: 'Transfer buyurtma qilish',
+    trfReqTitle: 'Transfer uchun ariza',
+    trfPoints: ['Narx va mashina — kelishuv bo\u2018yicha', 'Chiqish oldida kutib olamiz, yukka yordam', 'Reys kechiksa — haydovchi kutadi'],
+    trfConsent: 'Roziman: narx va mashina — kelishuv bo\u2018yicha, reys kechiksa — kelishib olinadi.',
+    trfDate: 'Uchib kelish sanasi', trfTime: 'Uchib kelish vaqti',
+    trfFrom: 'Qayerdan', trfTo: 'Qayerga',
+    trfFromPh: 'Madina aeroporti, SV 1234 reysi', trfToPh: 'Madinadagi hudud yoki manzil',
+    trfPeople: 'Yo\u2018lovchilar', trfBags: 'Yuk', trfBagsYes: 'Yuk bilan', trfBagsNo: 'Yuksiz',
+    trfKids: 'Bolalar', trfChair: 'Nogironlar aravachasi', trfYes: 'Bor', trfNo: 'Yo\u2018q',
+    trfNotePh: 'Masalan: Toshkentdan reys, bolalar o\u2018rindig\u2018i kerak',
+    trfDateErr: 'Uchib kelish sanasi va vaqtini yozing', trfRouteErr: 'Qayerdan qayerga borishni yozing',
+    trfPlaceMadAir: 'Madina aeroporti', trfPlaceJedAir: 'Jidda aeroporti', trfPlaceHaram: 'Haram',
+    trfPlaceMakkah: 'Makka', trfPlaceHome: 'Kvartira / mehmonxona',
+    repTransfer: 'transfer',
+    aclb_carsTransfer: '\u00abAvto\u00bb bo\u2018limidagi \u00abTransfer\u00bb bloki'
+  },
+  en: {
+    trfTitle: 'Transfer',
+    trfText: 'We meet you at the airport and drive you to your apartment. Car with a driver, help with luggage.',
+    trfBtn: 'Book a transfer',
+    trfReqTitle: 'Transfer request',
+    trfPoints: ['Price and car — agreed in advance', 'We meet you at the exit and help with bags', 'Flight delayed — the driver waits'],
+    trfConsent: 'I agree: the price and car are agreed in advance; if the flight is delayed, waiting is arranged.',
+    trfDate: 'Arrival date', trfTime: 'Arrival time',
+    trfFrom: 'From', trfTo: 'To',
+    trfFromPh: 'Madinah airport, flight SV 1234', trfToPh: 'Area or address in Madinah',
+    trfPeople: 'Passengers', trfBags: 'Luggage', trfBagsYes: 'With luggage', trfBagsNo: 'No luggage',
+    trfKids: 'Children', trfChair: 'Wheelchair', trfYes: 'Yes', trfNo: 'No',
+    trfNotePh: 'For example: flight from Tashkent, child seat needed',
+    trfDateErr: 'Enter the arrival date and time', trfRouteErr: 'Enter where to pick you up and where to go',
+    trfPlaceMadAir: 'Madinah airport', trfPlaceJedAir: 'Jeddah airport', trfPlaceHaram: 'Haram',
+    trfPlaceMakkah: 'Makkah', trfPlaceHome: 'Apartment / hotel',
+    repTransfer: 'transfers',
+    aclb_carsTransfer: '\u201cTransfer\u201d block in the Cars tab'
+  }
+});

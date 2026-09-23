@@ -802,7 +802,6 @@
     var on = $('#segWho') && $('#segWho').querySelector('.is-on');
     var isSisters = on && on.getAttribute('data-v') === 'sisters';
     var person = (isSisters && c.sisters.tg) ? c.sisters : c.brothers;
-    var waLink = person.wa ? 'https://wa.me/' + person.wa + '?text=' + encodeURIComponent(text) : '';
     var tgLink = person.tg ? 'https://t.me/' + person.tg : D.brand.channel;
     $('#bookCta').innerHTML = '';
     $('#bookScroll').innerHTML = '' +
@@ -815,18 +814,25 @@
         (sent
           // сёстры пишут на свой ник — так и подписываем кнопку
           ? '<button class="btn" data-go="' + tgLink + '">' + t(isSisters && c.sisters.tg ? 'writeSisters' : 'sentOpenChat') + '</button>'
-          : (waLink ? '<button class="btn" data-done="wa">' + ICON.wa + t('sendWa') + '</button>' : '') +
-            '<button class="btn btn-ghost" data-done="tg">' + ICON.tg + t('sendTg') + '</button>') +
+          : '<button class="btn" data-done="tg">' + ICON.tg + t('sendTg') + '</button>') +
         '<button class="btn btn-ghost" data-act="close">' + t('close') + '</button>' +
       '</div>';
     $('#bookScroll').onclick = function (e) {
-      var b = e.target.closest('[data-done]');
-      if (!b) return;
-      if (b.getAttribute('data-done') === 'wa') { openLink(waLink); return; }
-      copyText(text);
-      alertMsg(t('copied'));
-      setTimeout(function () { openLink(tgLink); }, 400);
+      if (!e.target.closest('[data-done]')) return;
+      sendViaTg(text);
     };
+  }
+
+  /* Заявка уходит в Telegram уже готовым сообщением: остаётся выбрать чат и нажать «Отправить».
+     Ссылку «сразу в чат с текстом» Telegram не поддерживает, поэтому открываем окно «Поделиться»;
+     текст заодно копируем — если окно почему-то не откроется, его можно вставить руками. */
+  function sendViaTg(text) {
+    copyText(text);
+    // адрес обязателен: без него t.me/share уводит на главную Telegram. Заодно Абдуллах видит, откуда заявка
+    var home = /^https?:$/.test(location.protocol) ? location.origin + '/' : D.brand.channel;
+    var url = 'https://t.me/share/url?url=' + encodeURIComponent(home) + '&text=' + encodeURIComponent(text);
+    if (TG && TG.initData && TG.openTelegramLink && tgv('6.1')) { TG.openTelegramLink(url); return; }
+    window.open(url, '_blank');                      // в браузере — новая вкладка, приложение остаётся открытым
   }
 
   function copyText(text) {
@@ -930,7 +936,6 @@
     $('#contactBox').innerHTML =
       (c.brothers.tg ? '<button class="btn" data-go="https://t.me/' + c.brothers.tg + '">' + ICON.tg + t('writeBrothers') + '</button>' : '') +
       (c.sisters.tg ? '<button class="btn btn-ghost" data-go="https://t.me/' + c.sisters.tg + '">' + ICON.tg + t('writeSisters') + '</button>' : '') +
-      (c.brothers.wa ? '<button class="btn btn-ghost" data-go="https://wa.me/' + c.brothers.wa + '">' + ICON.wa + 'WhatsApp</button>' : '') +
       '<button class="btn btn-ghost" data-go="' + D.brand.channel + '">' + t('channelBtn') + '</button>' +
       '<p style="color:var(--ink-3);font-size:13px;text-align:center">' + esc(L(c.hours)) + '</p>';
   }
@@ -971,6 +976,7 @@
 
   function renderMap() {
     $('#mapHint').textContent = t('mapHint');
+    if ($('#mapBadge')) $('#mapBadge').textContent = t('mapApprox');
     $('#mapAreasTitle').textContent = t('mapAreas');
     $('#districtList').innerHTML = districtListHTML();
     if (window.MapView) window.MapView.show();
@@ -1214,7 +1220,7 @@
 
   /* ------------------------------------------------------ общее ядро */
   var MR = {
-    D: D, state: state, api: api, ICON: ICON,
+    D: D, state: state, api: api, ICON: ICON, sendViaTg: sendViaTg,
     t: t, tpl: tpl, L: L, esc: esc, money: money, word: word, nForm: nForm,
     haptic: haptic, hapticNotify: hapticNotify, alert: alertMsg,
     media: media, mediaCard: mediaCard, normalize: normalize,

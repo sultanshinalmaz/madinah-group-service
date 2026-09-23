@@ -1,7 +1,7 @@
 /* ==========================================================================
    Услуги Madinah Group: визы и икама, туры и зиярат, аренда машин.
    Экраны разделов, заявка по каждой услуге и отправка:
-   с сервером — в бот (визы — сразу визовой компании), без сервера — в WhatsApp.
+   с сервером — в бот (визы — сразу визовой компании), без сервера — готовым сообщением в Telegram.
    Контент — DATA.services в data.js (с сервером — из панели риелтора).
    ========================================================================== */
 (function () {
@@ -284,8 +284,21 @@
             '<p>' + esc(L(c.emptyNote)) + '</p>' +
             '<button class="btn" data-svc-req="car" data-item="">' + t('leaveRequest') + '</button>' +
           '</div>') +
+      transferHTML() +
       termsLink('cars');
     window.Gallery.bind(box);
+  }
+
+  /* Трансфер: встреча в аэропорту. Цену не показываем — она зависит от машины и времени. */
+  function transferHTML() {
+    if (!MR.blockOn('carsTransfer')) return '';
+    return '<section class="svc-transfer">' +
+      '<div class="svc-sep"><span>' + I.plane + '</span><h3>' + t('trfTitle') + '</h3></div>' +
+      '<article class="svc-card">' +
+        '<p class="svc-text">' + esc(t('trfText')) + '</p>' +
+        '<ul class="trf-points">' + (t('trfPoints') || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
+        '<button class="btn" data-svc-req="transfer" data-item="">' + I.calendar + t('trfBtn') + '</button>' +
+      '</article></section>';
   }
 
   function render(name) {
@@ -329,6 +342,23 @@
     if (!it) return kind === 'car' ? (lang === 'ru' ? 'подобрать' : t('carAny')) : '';
     return kind === 'car' ? carTitle(it) : (lang ? (it.title[lang] || it.title.ru || '') : L(it.title));
   }
+  /* частые точки маршрута: подставляются в поле одним касанием */
+  function places() {
+    return ['trfPlaceMadAir', 'trfPlaceJedAir', 'trfPlaceHaram', 'trfPlaceMakkah', 'trfPlaceHome'].map(function (k) { return t(k); });
+  }
+  function chipsHTML(forId) {
+    return '<div class="term-chips">' + places().map(function (p) {
+      return '<button type="button" data-chip="' + esc(p) + '" data-chip-for="' + forId + '">' + esc(p) + '</button>';
+    }).join('') + '</div>';
+  }
+  /* переключатель «да / нет» (багаж, дети, коляска) */
+  function ynHTML(id, yes, no, cur) {
+    return '<div class="seg seg-wrap" data-seg id="' + id + '">' +
+      '<button data-v="yes" class="' + (cur === 'yes' ? 'is-on' : '') + '">' + esc(yes) + '</button>' +
+      '<button data-v="no" class="' + (cur === 'no' ? 'is-on' : '') + '">' + esc(no) + '</button></div>';
+  }
+  function segVal(id) { var b = $('#' + id + ' .is-on'); return b ? b.getAttribute('data-v') : ''; }
+
   function segHTML(id, list, cur, labelFn) {
     return '<div class="seg seg-wrap" id="' + id + '">' + list.map(function (x) {
       return '<button data-v="' + esc(x.id) + '" class="' + (x.id === cur ? 'is-on' : '') + '">' + esc(labelFn(x)) + '</button>';
@@ -356,7 +386,7 @@
     var svc = kind === 'visa' ? SV().visa : kind === 'tour' ? SV().tours : SV().cars;
     var f = { kind: kind, item: cur ? cur.id : '', people: 1, conflict: null };
     var iq = kind === 'visa' && cur && cur.cat === 'iqama';
-    var title = kind === 'visa' ? (iq ? 'iqamaReqTitle' : 'visaReqTitle') : kind === 'tour' ? 'tourReqTitle' : 'carReqTitle';
+    var title = kind === 'visa' ? (iq ? 'iqamaReqTitle' : 'visaReqTitle') : kind === 'tour' ? 'tourReqTitle' : kind === 'transfer' ? 'trfReqTitle' : 'carReqTitle';
     var today = todayISO();
     var pick = '', body = '';
 
@@ -376,6 +406,19 @@
       body = '<div class="ed-grid2"><div class="field"><label for="rqDate">' + t('tourDate') + '</label><input id="rqDate" type="date" min="' + today + '"></div>' +
           '<div class="field"><label>' + t('bookPeople') + '</label>' + stepper('people', 1) + '</div></div>' +
         '<div class="field"><label for="rqPickup">' + t('pickup') + '</label><input id="rqPickup" placeholder="' + esc(t('pickupPh')) + '"></div>';
+    } else if (kind === 'transfer') {
+      body = '<div class="ed-grid2">' +
+          '<div class="field" id="rqDateF"><label for="rqDate">' + t('trfDate') + ' *</label><input id="rqDate" type="date" min="' + today + '"></div>' +
+          '<div class="field" id="rqTimeF"><label for="rqTime">' + t('trfTime') + ' *</label><input id="rqTime" type="time"></div>' +
+        '</div>' +
+        '<div class="field" id="rqFromF"><label for="rqFrom">' + t('trfFrom') + ' *</label>' +
+          '<input id="rqFrom" placeholder="' + esc(t('trfFromPh')) + '">' + chipsHTML('rqFrom') + '</div>' +
+        '<div class="field" id="rqToF"><label for="rqTo">' + t('trfTo') + ' *</label>' +
+          '<input id="rqTo" placeholder="' + esc(t('trfToPh')) + '">' + chipsHTML('rqTo') + '</div>' +
+        '<div class="field"><label>' + t('trfPeople') + '</label>' + stepper('people', 1) + '</div>' +
+        '<div class="field"><label>' + t('trfBags') + '</label>' + ynHTML('rqBags', t('trfBagsYes'), t('trfBagsNo'), 'yes') + '</div>' +
+        '<div class="field"><label>' + t('trfKids') + '</label>' + ynHTML('rqKids', t('trfYes'), t('trfNo'), 'no') + '</div>' +
+        '<div class="field"><label>' + t('trfChair') + '</label>' + ynHTML('rqChair', t('trfYes'), t('trfNo'), 'no') + '</div>';
     } else {
       if (list.length) {
         pick = '<div class="field"><label for="rqCar">' + t('carPick') + '</label><select id="rqCar">' +
@@ -394,7 +437,7 @@
         '<div class="car-calc" id="rqCalc" hidden></div>' +
         '<div class="field"><label>' + t('carPassengers') + '</label>' + stepper('people', 1) + '</div>';
     }
-    var notePh = { visa: 'visaNotePh', tour: 'tourNotePh', car: 'carNotePh' }[kind];
+    var notePh = { visa: 'visaNotePh', tour: 'tourNotePh', car: 'carNotePh', transfer: 'trfNotePh' }[kind];
     var nameField = kind === 'visa' ? '' :
       '<div class="field" id="rqNameF"><label for="rqName">' + t('bookName') + ' *</label>' +
         '<input id="rqName" value="' + esc(name) + '" placeholder="' + esc(t('bookNamePh')) + '" autocomplete="name"></div>';
@@ -409,9 +452,10 @@
           (u ? '<span class="hint">' + t('bookPhonePh') + '</span>' : '') + '</div>' +
         '<div class="field"><label for="rqNote">' + t('bookComment') + '</label><textarea id="rqNote" placeholder="' + esc(t(notePh)) + '"></textarea></div>' +
         '<div class="key-points"><h3>' + t('keyPointsTitle') + '</h3><ul>' +
-          (svc.terms || []).slice(0, 3).map(function (k) { return '<li>' + esc(L(k)) + '</li>'; }).join('') +
-        '</ul><button class="link-line" data-svc-terms="' + (kind === 'tour' ? 'tours' : kind === 'car' ? 'cars' : 'visa') + '">' + MR.ICON.doc + t('readTermsL') + '</button></div>' +
-        '<label class="check" id="rqAgreeBox"><input type="checkbox" id="rqAgree"><span>' + esc(L(svc.consent)) + '</span></label>' +
+          (kind === 'transfer' ? (t('trfPoints') || []).map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('')
+            : (svc.terms || []).slice(0, 3).map(function (k) { return '<li>' + esc(L(k)) + '</li>'; }).join('')) +
+        '</ul><button class="link-line" data-svc-terms="' + (kind === 'tour' ? 'tours' : kind === 'visa' ? 'visa' : 'cars') + '">' + MR.ICON.doc + t('readTermsL') + '</button></div>' +
+        '<label class="check" id="rqAgreeBox"><input type="checkbox" id="rqAgree"><span>' + esc(kind === 'transfer' ? t('trfConsent') : L(svc.consent)) + '</span></label>' +
       '</div>';
     $('#bookCta').innerHTML = '<button class="btn" id="rqSend">' + t('send') + '</button>';
 
@@ -424,10 +468,24 @@
         MR.haptic('light');
         return;
       }
+      var ch = e.target.closest('[data-chip]');
+      if (ch) {                                            // точка маршрута одним касанием
+        var inp = $('#' + ch.getAttribute('data-chip-for'));
+        if (inp) inp.value = ch.getAttribute('data-chip');
+        $$('[data-chip-for="' + ch.getAttribute('data-chip-for') + '"]').forEach(function (x) { x.classList.toggle('is-on', x === ch); });
+        MR.haptic('light');
+        return;
+      }
+      var yn = e.target.closest('.seg[data-seg] button');
+      if (yn) {
+        $$('button', yn.parentNode).forEach(function (x) { x.classList.toggle('is-on', x === yn); });
+        MR.haptic('light');
+        return;
+      }
       var st = e.target.closest('[data-rq-step]');
       if (st) {
         var d = +st.getAttribute('data-rq-step').split(':')[1];
-        f.people = Math.max(1, Math.min(kind === 'car' ? 15 : 30, f.people + d));
+        f.people = Math.max(1, Math.min(kind === 'car' || kind === 'transfer' ? 15 : 30, f.people + d));
         $('#rq_people').textContent = f.people;
         MR.haptic('light');
         return;
@@ -509,6 +567,8 @@
       kind: f.kind, item: f.item, people: f.people,
       name: val('rqName'), phone: val('rqPhone'), note: val('rqNote'),
       date: from, dateTo: to, citizenship: val('rqCitizen'), pickup: val('rqPickup'),
+      time: val('rqTime'), from: val('rqFrom'), to: val('rqTo'),
+      bags: segVal('rqBags') || 'yes', kids: segVal('rqKids') || 'no', chair: segVal('rqChair') || 'no',
       days: f.kind === 'car' && from ? (to && to > from ? daysBetween(from, to) : 1) : 0,
       lang: MR.state.lang
     };
@@ -519,12 +579,33 @@
     var u = user();
     var it = itemsOf(r.kind).filter(function (x) { return x.id === r.item; })[0];
     var iq = r.kind === 'visa' && it && it.cat === 'iqama';
-    var head = r.kind === 'visa' ? (iq ? 'ЗАЯВКА ПО ИКАМЕ' : 'ЗАЯВКА НА ВИЗУ') : r.kind === 'tour' ? 'ЗАЯВКА НА ТУР' : 'ЗАЯВКА НА МАШИНУ';
+    var head = r.kind === 'visa' ? (iq ? 'ЗАЯВКА ПО ИКАМЕ' : 'ЗАЯВКА НА ВИЗУ') : r.kind === 'tour' ? 'ЗАЯВКА НА ТУР'
+      : r.kind === 'transfer' ? 'ЗАЯВКА НА ТРАНСФЕР' : 'ЗАЯВКА НА МАШИНУ';
     var terms = { visa: 'визу выдают власти КСА, Madinah Group за отказ и сроки не отвечает',
                   tour: 'маршрут, время и цена — по согласованию, форс-мажор — перенос',
                   car: 'осмотр при выдаче, штрафы и повреждения — за счёт арендатора' }[r.kind];
     var lines;
-    if (r.kind === 'visa') {
+    if (r.kind === 'transfer') {
+      lines = [
+        head + ' · Madinah Group',
+        '',
+        'Прилёт: ' + dmy(r.date) + (r.time ? ' в ' + r.time : ''),
+        'Откуда: ' + (r.from || '—'),
+        'Куда: ' + (r.to || '—'),
+        'Пассажиров: ' + r.people,
+        'Багаж: ' + (r.bags === 'no' ? 'без багажа' : 'есть'),
+        'Дети: ' + (r.kids === 'yes' ? 'есть' : 'нет'),
+        'Инвалидная коляска: ' + (r.chair === 'yes' ? 'есть' : 'нет'),
+        '',
+        'Имя: ' + (r.name || '—'),
+        'Телефон: ' + (r.phone || '—'),
+        r.note ? 'Комментарий: ' + r.note : '',
+        'Язык клиента: ' + r.lang.toUpperCase(),
+        '',
+        'Условия приняты: цена и машина — по согласованию, при задержке рейса водитель ждёт по договорённости',
+        u ? 'Telegram: @' + (u.username || ('id' + u.id)) : ''
+      ];
+    } else if (r.kind === 'visa') {
       lines = [
         head + ' · Madinah Group',
         'Клиент от Абдуллаха (Madinah Group) · заявка от ' + dmy(todayISO()),
@@ -571,14 +652,20 @@
     var u = user();
     var iq = r.kind === 'visa' && catOf(r.item) === 'iqama';
     var nameOk = !!r.name, contactOk = !!(u || r.phone), agreeOk = $('#rqAgree').checked;
-    var dateOk = !(r.kind === 'visa' && !iq && !r.date);
+    var dateOk = !(r.kind === 'visa' && !iq && !r.date) && !(r.kind === 'transfer' && (!r.date || !r.time));
+    var routeOk = r.kind !== 'transfer' || (r.from && r.to);
+    if ($('#rqTimeF')) $('#rqTimeF').classList.toggle('err', r.kind === 'transfer' && !r.time);
+    if ($('#rqFromF')) $('#rqFromF').classList.toggle('err', !routeOk);
+    if ($('#rqToF')) $('#rqToF').classList.toggle('err', !routeOk);
     $('#rqNameF').classList.toggle('err', !nameOk);
     $('#rqPhoneF').classList.toggle('err', !contactOk);
     $('#rqAgreeBox').classList.toggle('err', !agreeOk);
     if ($('#rqDateF')) $('#rqDateF').classList.toggle('err', !dateOk);
-    if (!nameOk || !dateOk || !contactOk || !agreeOk) {
+    if (!nameOk || !dateOk || !routeOk || !contactOk || !agreeOk) {
       MR.hapticNotify('error');
-      MR.alert(!nameOk ? t(r.kind === 'visa' ? 'fioErr' : 'nameErr') : !dateOk ? t('dateErr') : !contactOk ? t('contactErr') : t('agreeErr'));
+      MR.alert(!nameOk ? t(r.kind === 'visa' ? 'fioErr' : 'nameErr')
+        : !dateOk ? t(r.kind === 'transfer' ? 'trfDateErr' : 'dateErr')
+        : !routeOk ? t('trfRouteErr') : !contactOk ? t('contactErr') : t('agreeErr'));
       return;
     }
     if (f.conflict) { MR.hapticNotify('error'); MR.alert(MR.tpl('carAvailNo', { r: rangeText(f.conflict) })); return; }
@@ -599,10 +686,8 @@
     var c = MR.D.contacts;
     var partner = (SV().visa && SV().visa.partner) || {};
     // без сервера заявку на визу отправляем компании, если Абдуллах вписал её контакты
-    var usePartner = r.kind === 'visa' && (partner.wa || partner.tg);
-    var wa = usePartner ? partner.wa : c.brothers.wa;
+    var usePartner = r.kind === 'visa' && partner.tg;
     var tg = usePartner ? partner.tg : c.brothers.tg;
-    var waLink = wa ? 'https://wa.me/' + wa + '?text=' + encodeURIComponent(text) : '';
     var tgLink = tg ? 'https://t.me/' + tg : MR.D.brand.channel;
     $('#bookCta').innerHTML = '';
     $('#bookScroll').innerHTML =
@@ -614,17 +699,12 @@
       '<div class="wrap" style="display:grid;gap:10px;padding-bottom:22px">' +
         (sent
           ? (toPartner ? '' : '<button class="btn" data-go="https://t.me/' + c.brothers.tg + '">' + t('sentOpenChat') + '</button>')
-          : (waLink ? '<button class="btn" data-rq-done="wa">' + MR.ICON.wa + t('sendWa') + '</button>' : '') +
-            '<button class="btn btn-ghost" data-rq-done="tg">' + MR.ICON.tg + t('sendTg') + '</button>') +
+          : '<button class="btn" data-rq-done="tg">' + MR.ICON.tg + t('sendTg') + '</button>') +
         '<button class="btn btn-ghost" data-act="close">' + t('close') + '</button>' +
       '</div>';
     $('#bookScroll').onclick = function (e) {
-      var b = e.target.closest('[data-rq-done]');
-      if (!b) return;
-      if (b.getAttribute('data-rq-done') === 'wa') { MR.openLink(waLink); return; }
-      MR.copyText(text);
-      MR.alert(t('copied'));
-      setTimeout(function () { MR.openLink(tgLink); }, 400);
+      if (!e.target.closest('[data-rq-done]')) return;
+      MR.sendViaTg(text);
     };
   }
 

@@ -371,6 +371,15 @@
 .car-admin { display: grid; gap: 10px; padding: 12px; border-radius: 14px; background: var(--clay-soft); border: 1px solid var(--clay); }
 .car-admin .btn { min-height: 44px; font-size: 14.5px; }
 
+/* трансфер: блок на вкладке «Авто» */
+.svc-transfer { margin-top: 18px; }
+.svc-transfer .svc-sep { display: flex; align-items: center; gap: 8px; padding: 0 16px 8px; color: var(--green); }
+.svc-transfer .svc-sep svg { width: 20px; height: 20px; }
+.svc-transfer .svc-sep h3 { margin: 0; font-size: 17px; color: var(--ink); }
+.svc-transfer .svc-card { margin: 0 16px; padding: 14px; }
+.trf-points { margin: 10px 0 14px; padding-left: 18px; display: grid; gap: 5px; color: var(--ink-2); font-size: 13.5px; }
+.trf-points li::marker { color: var(--brass); }
+
 .term-chips { display: flex; gap: 6px; flex-wrap: wrap; }
 .term-chips button {
   flex: 1 1 auto; min-height: 38px; padding: 0 12px; border-radius: 10px;

@@ -136,8 +136,9 @@
         '<div class="rep-tile"><span>' + t('repEarned') + '</span><b class="num">' + pair(s.SAR, s.USD) + '</b></div>' +
         '<div class="rep-tile' + (s.rSAR || s.rUSD ? ' neg' : '') + '"><span>' + t('repRefunds') + '</span><b class="num">' + (s.rSAR || s.rUSD ? '−' + pair(s.rSAR, s.rUSD) : '0') + '</b></div>' +
         '<div class="rep-tile"><span>' + t('repRented') + '</span><b class="num">' + s.rented + '</b></div>' +
-        '<div class="rep-tile"><span>' + t('repRequests') + '</span><b class="num">' + (c.bookings + c.visa + c.tour + c.car) + '</b>' +
-          '<small>' + [t('repBookings') + ' ' + c.bookings, t('repVisa') + ' ' + c.visa, t('repTours') + ' ' + c.tour, t('repCars') + ' ' + c.car].join(' · ') + '</small></div>' +
+        '<div class="rep-tile"><span>' + t('repRequests') + '</span><b class="num">' + (c.bookings + c.visa + c.tour + c.car + (c.transfer || 0)) + '</b>' +
+          '<small>' + [t('repBookings') + ' ' + c.bookings, t('repVisa') + ' ' + c.visa, t('repTours') + ' ' + c.tour,
+            t('repCars') + ' ' + c.car, t('repTransfer') + ' ' + (c.transfer || 0)].join(' · ') + '</small></div>' +
       '</div>' +
       '<div class="section-title">' + t('repDeals') + '</div>' +
       (list.length ? '<div class="rep-list">' + list.map(function (x) {

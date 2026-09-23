@@ -254,7 +254,7 @@
       return '<div class="ed-sec"><h3>' + esc(title) + '</h3>' +
         field('cn_' + key + '_tg', t('acbTg'), p.tg, ' placeholder="RakhimovAbdullah" autocapitalize="off"') +
         '<div class="ed-grid2">' + field('cn_' + key + '_phone', t('acbPhone'), p.phone, ' type="tel" placeholder="+966..."') +
-          field('cn_' + key + '_wa', t('acbWa'), p.wa, ' inputmode="numeric" placeholder="9665..."') + '</div></div>';
+          '</div></div>';
     };
     sheet(head(t('acBrand'), t('acLiveNote')) +
       '<div class="ed-sec"><h3>' + esc(t('acBrand')) + '</h3>' +
@@ -272,7 +272,7 @@
       name: mlRead('bName'), tagline: mlRead('bTag'), realtor: mlRead('bRealtor'), about: mlRead('bAbout'),
       channel: val('bChannel'), channelName: val('bChannelName')
     };
-    var person = function (key) { return { tg: val('cn_' + key + '_tg'), phone: val('cn_' + key + '_phone'), wa: val('cn_' + key + '_wa') }; };
+    var person = function (key) { return { tg: val('cn_' + key + '_tg'), phone: val('cn_' + key + '_phone'), wa: '' }; };
     var c = { brothers: person('brothers'), sisters: person('sisters'), instagram: val('bInsta'), hours: mlRead('bHours') };
     busy(true);
     return postContent('brand', b).then(function () { return postContent('contacts', c); }).then(function (res) {
@@ -562,7 +562,7 @@
   }
 
   /* ------------------------------------------------------------ разделы и порядок */
-  var BLOCKS = ['housingMap', 'housingFav', 'offerAbout', 'offerSteps', 'offerCases', 'offerContacts', 'visaDocs', 'visaPriceNote', 'badge247'];
+  var BLOCKS = ['housingMap', 'housingFav', 'offerAbout', 'offerSteps', 'offerCases', 'offerContacts', 'visaDocs', 'visaPriceNote', 'badge247', 'carsTransfer'];
   function openLayout() {
     mode = 'layout';
     draft = clone(MR.layout());
