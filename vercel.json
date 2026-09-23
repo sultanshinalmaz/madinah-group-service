@@ -1,6 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "installCommand": "npm install --omit=dev",
+  "regions": ["dxb1"],
   "functions": {
     "api/[...path].js": {
       "maxDuration": 60,
