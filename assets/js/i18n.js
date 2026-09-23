@@ -1689,3 +1689,12 @@ window.AMENITIES = {
   uz: { visaTitle: 'Vizalar va iqoma' },
   en: { visaTitle: 'Visas and iqama' }
 });
+
+/* Тексты трансфера — своей группой в редакторе надписей */
+(function (add) {
+  for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
+})({
+  ru: { acgTransfer: 'Трансфер' },
+  uz: { acgTransfer: 'Transfer' },
+  en: { acgTransfer: 'Transfer' }
+});

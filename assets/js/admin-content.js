@@ -462,6 +462,7 @@
     ['visa', 'acgVisa', /^(visa|iqama[A-Z]|fio|partnerBadge|citizenship|travelDate|applyVisa|whenNeeded|dateErr|contactErr|priceOnRequest|perPerson|perGroup|open247|svcFor|readTermsL|termsVisaTitle)/],
     ['tours', 'acgTours', /^(tour|route|withGuide|inPackage|durationL|pickup|bookTour|leaveRequest|termsToursTitle)/],
     ['cars', 'acgCars', /^(car[A-Z]|seatForms|gear|term[0-9]|dayForms|chooseThisCar|termsCarsTitle)/],
+    ['transfer', 'acgTransfer', /^trf/],
     ['offer', 'acgOffer', /^(offer|about|steps|contact|write|callPhone|channelBtn|termsHousing)/]
   ];
   function groupOf(key) {
