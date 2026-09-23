@@ -284,27 +284,29 @@
             '<p>' + esc(L(c.emptyNote)) + '</p>' +
             '<button class="btn" data-svc-req="car" data-item="">' + t('leaveRequest') + '</button>' +
           '</div>') +
-      transferHTML() +
       termsLink('cars');
     window.Gallery.bind(box);
   }
 
-  /* Трансфер: встреча в аэропорту. Цену не показываем — она зависит от машины и времени. */
-  function transferHTML() {
-    if (!MR.blockOn('carsTransfer')) return '';
-    return '<section class="svc-transfer">' +
-      '<div class="svc-sep"><span>' + I.plane + '</span><h3>' + t('trfTitle') + '</h3></div>' +
-      '<article class="svc-card">' +
-        '<p class="svc-text">' + esc(t('trfText')) + '</p>' +
+  /* Трансфер — отдельный раздел: встреча в аэропорту. Цена зависит от машины и времени, поэтому по согласованию. */
+  function renderTransfer() {
+    var box = $('#screenTransfer');
+    if (!box) return;
+    box.innerHTML =
+      hero(t('trfTitle'), t('trfText'), 'plane') +
+      '<div class="svc-list"><article class="svc-card">' +
+        '<div class="svc-head"><div class="svc-head-t"><h3>' + t('trfHow') + '</h3></div></div>' +
         '<ul class="trf-points">' + (t('trfPoints') || []).map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('') + '</ul>' +
         '<button class="btn" data-svc-req="transfer" data-item="">' + I.calendar + t('trfBtn') + '</button>' +
-      '</article></section>';
+      '</article></div>' +
+      termsLink('cars');
   }
 
   function render(name) {
     if (name === 'visa') renderVisa();
     else if (name === 'tours') renderTours();
     else if (name === 'cars') renderCars();
+    else if (name === 'transfer') renderTransfer();
     else return;
     var root = $('#screen' + name.charAt(0).toUpperCase() + name.slice(1));
     hooks.forEach(function (fn) { try { fn(name, root); } catch (e) {} });
@@ -358,6 +360,8 @@
       '<button data-v="no" class="' + (cur === 'no' ? 'is-on' : '') + '">' + esc(no) + '</button></div>';
   }
   function segVal(id) { var b = $('#' + id + ' .is-on'); return b ? b.getAttribute('data-v') : ''; }
+  /* «1 место · 2 места · 5 мест» — заявку читает человек */
+  function bagWord(n) { var a = n % 10, b = n % 100; return a === 1 && b !== 11 ? 'место' : (a >= 2 && a <= 4 && (b < 10 || b >= 20)) ? 'места' : 'мест'; }
 
   function segHTML(id, list, cur, labelFn) {
     return '<div class="seg seg-wrap" id="' + id + '">' + list.map(function (x) {
@@ -415,8 +419,10 @@
           '<input id="rqFrom" placeholder="' + esc(t('trfFromPh')) + '">' + chipsHTML('rqFrom') + '</div>' +
         '<div class="field" id="rqToF"><label for="rqTo">' + t('trfTo') + ' *</label>' +
           '<input id="rqTo" placeholder="' + esc(t('trfToPh')) + '">' + chipsHTML('rqTo') + '</div>' +
-        '<div class="field"><label>' + t('trfPeople') + '</label>' + stepper('people', 1) + '</div>' +
-        '<div class="field"><label>' + t('trfBags') + '</label>' + ynHTML('rqBags', t('trfBagsYes'), t('trfBagsNo'), 'yes') + '</div>' +
+        '<div class="ed-grid2">' +
+          '<div class="field"><label>' + t('trfPeople') + '</label>' + stepper('people', 1) + '</div>' +
+          '<div class="field"><label>' + t('trfBags') + '</label>' + stepper('bags', 2) + '</div>' +
+        '</div>' +
         '<div class="field"><label>' + t('trfKids') + '</label>' + ynHTML('rqKids', t('trfYes'), t('trfNo'), 'no') + '</div>' +
         '<div class="field"><label>' + t('trfChair') + '</label>' + ynHTML('rqChair', t('trfYes'), t('trfNo'), 'no') + '</div>';
     } else {
@@ -485,6 +491,13 @@
       var st = e.target.closest('[data-rq-step]');
       if (st) {
         var d = +st.getAttribute('data-rq-step').split(':')[1];
+        var key = st.getAttribute('data-rq-step').split(':')[0];
+        if (key === 'bags') {                              // мест багажа: можно и ноль
+          f.bags = Math.max(0, Math.min(20, (f.bags == null ? 2 : f.bags) + d));
+          $('#rq_bags').textContent = f.bags;
+          MR.haptic('light');
+          return;
+        }
         f.people = Math.max(1, Math.min(kind === 'car' || kind === 'transfer' ? 15 : 30, f.people + d));
         $('#rq_people').textContent = f.people;
         MR.haptic('light');
@@ -568,7 +581,7 @@
       name: val('rqName'), phone: val('rqPhone'), note: val('rqNote'),
       date: from, dateTo: to, citizenship: val('rqCitizen'), pickup: val('rqPickup'),
       time: val('rqTime'), from: val('rqFrom'), to: val('rqTo'),
-      bags: segVal('rqBags') || 'yes', kids: segVal('rqKids') || 'no', chair: segVal('rqChair') || 'no',
+      bags: f.bags == null ? 2 : f.bags, kids: segVal('rqKids') || 'no', chair: segVal('rqChair') || 'no',
       days: f.kind === 'car' && from ? (to && to > from ? daysBetween(from, to) : 1) : 0,
       lang: MR.state.lang
     };
@@ -593,7 +606,7 @@
         'Откуда: ' + (r.from || '—'),
         'Куда: ' + (r.to || '—'),
         'Пассажиров: ' + r.people,
-        'Багаж: ' + (r.bags === 'no' ? 'без багажа' : 'есть'),
+        'Багаж: ' + (r.bags ? r.bags + ' ' + bagWord(r.bags) : 'без багажа'),
         'Дети: ' + (r.kids === 'yes' ? 'есть' : 'нет'),
         'Инвалидная коляска: ' + (r.chair === 'yes' ? 'есть' : 'нет'),
         '',
@@ -699,12 +712,17 @@
       '<div class="wrap" style="display:grid;gap:10px;padding-bottom:22px">' +
         (sent
           ? (toPartner ? '' : '<button class="btn" data-go="https://t.me/' + c.brothers.tg + '">' + t('sentOpenChat') + '</button>')
-          : '<button class="btn" data-rq-done="tg">' + MR.ICON.tg + t('sendTg') + '</button>') +
+          : '<button class="btn" data-rq-done="chat">' + MR.ICON.tg + t('sentOpenChat') + '</button>' +
+            '<button class="btn btn-ghost" data-rq-done="share">' + t('sendTg') + '</button>') +
         '<button class="btn btn-ghost" data-act="close">' + t('close') + '</button>' +
       '</div>';
     $('#bookScroll').onclick = function (e) {
-      if (!e.target.closest('[data-rq-done]')) return;
-      MR.sendViaTg(text);
+      var b = e.target.closest('[data-rq-done]');
+      if (!b) return;
+      if (b.getAttribute('data-rq-done') === 'share') { MR.sendViaTg(text); return; }
+      MR.copyText(text);                                   // прямо в чат нужного человека, текст — из буфера
+      MR.alert(t('copied'));
+      setTimeout(function () { MR.openLink(tgLink); }, 400);
     };
   }
 

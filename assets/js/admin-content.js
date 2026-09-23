@@ -562,7 +562,7 @@
   }
 
   /* ------------------------------------------------------------ разделы и порядок */
-  var BLOCKS = ['housingMap', 'housingFav', 'offerAbout', 'offerSteps', 'offerCases', 'offerContacts', 'visaDocs', 'visaPriceNote', 'badge247', 'carsTransfer'];
+  var BLOCKS = ['housingMap', 'housingFav', 'offerAbout', 'offerSteps', 'offerCases', 'offerContacts', 'visaDocs', 'visaPriceNote', 'badge247'];
   function openLayout() {
     mode = 'layout';
     draft = clone(MR.layout());

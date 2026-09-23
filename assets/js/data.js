@@ -429,9 +429,9 @@ window.DATA = {
       commissionPct: 5,          // наценка Абдуллаха для клиентов от него, % — идёт в отчёт
       currency: 'USD',
       intro: {
-        ru: 'Любая виза в Саудовскую Аравию и услуги по икаме — через партнёрскую визовую компанию. Выберите, что нужно, и оставьте контакты: заявка сразу уйдёт в компанию, и с вами свяжутся.',
-        uz: 'Saudiya Arabistoniga istalgan viza va iqoma bo‘yicha xizmatlar — hamkor viza kompaniyasi orqali. Keraklisini tanlang va kontaktlaringizni qoldiring: ariza darhol kompaniyaga boradi va siz bilan bog‘lanishadi.',
-        en: 'Any Saudi visa and iqama services — through a partner visa company. Choose what you need and leave your contacts: the request goes straight to the company, and they will get in touch.'
+        ru: 'Любая виза в Саудовскую Аравию, услуги по икаме и визы других стран — через партнёрскую визовую компанию. Выберите, что нужно, и оставьте контакты: заявка сразу уйдёт в компанию, и с вами свяжутся.',
+        uz: 'Saudiya Arabistoniga istalgan viza, iqoma xizmatlari va boshqa davlatlar vizasi — hamkor viza kompaniyasi orqali. Keraklisini tanlang va kontaktlaringizni qoldiring: ariza darhol kompaniyaga boradi va siz bilan bog‘lanishadi.',
+        en: 'Any Saudi visa, iqama services and visas to other countries — through a partner visa company. Choose what you need and leave your contacts: the request goes straight to the company, and they will get in touch.'
       },
       docs: [
         { ru: 'Скан загранпаспорта — срок действия не меньше 6 месяцев', uz: 'Xorijiy pasport nusxasi — amal qilish muddati kamida 6 oy', en: 'Passport scan — valid for at least 6 more months' },
@@ -448,7 +448,11 @@ window.DATA = {
         { id: 'invite', title: { ru: 'По приглашению', uz: 'Taklif bilan', en: 'By invitation' } },
         { id: 'life',   title: { ru: 'Работа и учёба', uz: 'Ish va o‘qish', en: 'Work & study' } },
         { id: 'iqama',  title: { ru: 'Икама', uz: 'Iqoma', en: 'Iqama' },
-          note: { ru: 'Для тех, кто живёт и работает в Саудовской Аравии', uz: 'Saudiya Arabistonida yashab, ishlayotganlar uchun', en: 'For those living and working in Saudi Arabia' } }
+          note: { ru: 'Для тех, кто живёт и работает в Саудовской Аравии', uz: 'Saudiya Arabistonida yashab, ishlayotganlar uchun', en: 'For those living and working in Saudi Arabia' } },
+        { id: 'countries', title: { ru: 'Визы других стран', uz: 'Boshqa davlatlar vizasi', en: 'Visas to other countries' },
+          note: { ru: 'Оформляем через партнёров. Сроки и цена зависят от гражданства — уточняйте.',
+                  uz: 'Hamkorlar orqali rasmiylashtiramiz. Muddat va narx fuqarolikka bog‘liq — aniqlashtiring.',
+                  en: 'Arranged through partners. Timing and price depend on your citizenship — ask us.' } }
       ],
       types: [
         {
@@ -585,7 +589,31 @@ window.DATA = {
             uz: 'Xotin va bolalarni iqomaga qaramog‘idagilar sifatida kiritish.',
             en: 'Adding your wife and children to your iqama as dependents.'
           }
-        }
+        },
+        { id: 'country-sa', cat: 'countries', icon: 'plane',
+          title: { ru: '🇸🇦 Саудовская Аравия', uz: '🇸🇦 Saudiya Arabistoni', en: '🇸🇦 Saudi Arabia' },
+          text: { ru: 'Туристическая, гостевая, деловая — подберём вид под вашу поездку.', uz: 'Turistik, mehmon, ishbilarmon — safaringizga mos turini tanlaymiz.', en: 'Tourist, guest or business — we pick the right type for your trip.' } },
+        { id: 'country-qa', cat: 'countries', icon: 'plane',
+          title: { ru: '🇶🇦 Катар', uz: '🇶🇦 Qatar', en: '🇶🇦 Qatar' },
+          text: { ru: 'Туристическая и гостевая виза в Катар.', uz: 'Qatarga turistik va mehmon vizasi.', en: 'Tourist and guest visas to Qatar.' } },
+        { id: 'country-jo', cat: 'countries', icon: 'plane',
+          title: { ru: '🇯🇴 Иордания', uz: '🇯🇴 Iordaniya', en: '🇯🇴 Jordan' },
+          text: { ru: 'Виза в Иорданию: туризм и зиярат.', uz: 'Iordaniyaga viza: turizm va ziyorat.', en: 'Visa to Jordan: tourism and ziyarat.' } },
+        { id: 'country-pk', cat: 'countries', icon: 'plane',
+          title: { ru: '🇵🇰 Пакистан', uz: '🇵🇰 Pokiston', en: '🇵🇰 Pakistan' },
+          text: { ru: 'Виза в Пакистан: туризм, гости, дела.', uz: 'Pokistonga viza: turizm, mehmon, ish.', en: 'Visa to Pakistan: tourism, family visits, business.' } },
+        { id: 'country-id', cat: 'countries', icon: 'plane',
+          title: { ru: '🇮🇩 Индонезия', uz: '🇮🇩 Indoneziya', en: '🇮🇩 Indonesia' },
+          text: { ru: 'Виза в Индонезию: отдых и поездки по делам.', uz: 'Indoneziyaga viza: dam olish va ish safari.', en: 'Visa to Indonesia: holidays and business trips.' } },
+        { id: 'country-vn', cat: 'countries', icon: 'plane',
+          title: { ru: '🇻🇳 Вьетнам', uz: '🇻🇳 Vyetnam', en: '🇻🇳 Vietnam' },
+          text: { ru: 'Виза во Вьетнам: туризм и деловые поездки.', uz: 'Vyetnamga viza: turizm va ish safari.', en: 'Visa to Vietnam: tourism and business trips.' } },
+        { id: 'country-in', cat: 'countries', icon: 'plane',
+          title: { ru: '🇮🇳 Индия', uz: '🇮🇳 Hindiston', en: '🇮🇳 India' },
+          text: { ru: 'Виза в Индию: туризм, лечение, гости.', uz: 'Hindistonga viza: turizm, davolanish, mehmon.', en: 'Visa to India: tourism, medical trips, family visits.' } },
+        { id: 'country-uz', cat: 'countries', icon: 'plane',
+          title: { ru: '🇺🇿 Узбекистан', uz: '🇺🇿 O‘zbekiston', en: '🇺🇿 Uzbekistan' },
+          text: { ru: 'Виза в Узбекистан для тех, кому она нужна.', uz: 'Kerak bo‘lganlar uchun O‘zbekistonga viza.', en: 'Visa to Uzbekistan for those who need one.' } }
       ],
       terms: [
         { ru: 'Визу выдают власти Саудовской Аравии. Решение и сроки зависят только от них — выдачу визы никто не может гарантировать.', uz: 'Vizani Saudiya Arabistoni hokimiyati beradi. Qaror va muddatlar faqat ularga bog‘liq — vizani hech kim kafolatlay olmaydi.', en: 'Visas are issued by the Saudi authorities. The decision and timing are theirs alone — no one can guarantee a visa.' },

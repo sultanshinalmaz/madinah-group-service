@@ -1653,3 +1653,39 @@ window.AMENITIES = {
     aclb_carsTransfer: '\u201cTransfer\u201d block in the Cars tab'
   }
 });
+
+/* Трансфер стал отдельным разделом, багаж — количеством мест */
+(function (add) {
+  for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
+})({
+  ru: {
+    tabTransfer: 'Трансфер',
+    trfHow: 'Как это работает',
+    trfBags: 'Мест багажа',
+    copied: 'Текст заявки скопирован — вставьте его в чат',
+    sendFallbackNote: 'Текст заявки скопирован. Напишите — и вставьте его в чат. Или отправьте готовым сообщением.'
+  },
+  uz: {
+    tabTransfer: 'Transfer',
+    trfHow: 'Bu qanday ishlaydi',
+    trfBags: 'Yuk joylari',
+    copied: 'Ariza matni nusxalandi — chatga qo‘ying',
+    sendFallbackNote: 'Ariza matni nusxalandi. Yozing va chatga qo‘ying. Yoki tayyor xabar bilan yuboring.'
+  },
+  en: {
+    tabTransfer: 'Transfer',
+    trfHow: 'How it works',
+    trfBags: 'Pieces of luggage',
+    copied: 'Request copied — paste it into the chat',
+    sendFallbackNote: 'The request is copied. Open the chat and paste it — or send it as a ready message.'
+  }
+});
+
+/* В разделе виз теперь не только Саудовская Аравия */
+(function (add) {
+  for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
+})({
+  ru: { visaTitle: 'Визы и икама' },
+  uz: { visaTitle: 'Vizalar va iqoma' },
+  en: { visaTitle: 'Visas and iqama' }
+});

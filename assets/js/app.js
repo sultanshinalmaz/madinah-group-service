@@ -12,7 +12,7 @@
   var LANGS = ['ru', 'uz', 'en'];
   var I18N_DEFAULT = JSON.parse(JSON.stringify(window.I18N));   // исходные надписи: админ правит поверх них
   var ADMIN_PATH = /^\/admin\/?$/.test(location.pathname);      // страница /admin
-  var TAB_IDS = ['catalog', 'visa', 'tours', 'cars', 'offer'];
+  var TAB_IDS = ['catalog', 'visa', 'tours', 'cars', 'transfer', 'offer'];
   var TG = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   var STATUS_RANK = { free: 0, booked: 1, busy: 2, rented: 3, draft: 4 };
   var DEFAULT_FILTERS = { district: 'all', rooms: 0, maxPrice: 0, term: 'any', freeOnly: false, noIqama: false, allIn: false, sort: 'new' };
@@ -207,7 +207,21 @@
   /* ----------------------------------------------- контент из админки */
   function layout() {
     var l = D.layout || {};
-    return { tabs: l.tabs || TAB_IDS.map(function (id) { return { id: id, on: true }; }), blocks: l.blocks || {} };
+    // в сохранённом порядке может не быть новых вкладок (например «Трансфер») —
+    // ставим их туда, где они идут в TAB_IDS, а не в конец
+    var tabs = (l.tabs || []).filter(function (x) { return x && TAB_IDS.indexOf(x.id) >= 0; });
+    var has = function (id) { return tabs.some(function (x) { return x.id === id; }); };
+    TAB_IDS.forEach(function (id, i) {
+      if (has(id)) return;
+      var at = 0;
+      for (var j = i - 1; j >= 0; j--) {
+        if (!has(TAB_IDS[j])) continue;
+        for (var k = 0; k < tabs.length; k++) if (tabs[k].id === TAB_IDS[j]) { at = k + 1; break; }
+        break;
+      }
+      tabs.splice(at, 0, { id: id, on: true });
+    });
+    return { tabs: tabs, blocks: l.blocks || {} };
   }
   function blockOn(key) { return layout().blocks[key] !== false; }
   function tabOn(id) { var x = layout().tabs.filter(function (t) { return t.id === id; })[0]; return !x || x.on !== false; }
@@ -247,6 +261,7 @@
       if (!b.hidden) shown++;
     });
     bar.style.gridTemplateColumns = 'repeat(' + Math.max(1, shown) + ', 1fr)';
+    bar.classList.toggle('is-tight', shown > 5);        // шесть вкладок — надписи мельче, чтобы влезли
     var nav = $('#housingNav');
     nav.querySelector('[data-screen="map"]').hidden = !blockOn('housingMap');
     nav.querySelector('[data-screen="fav"]').hidden = !blockOn('housingFav');
@@ -814,12 +829,18 @@
         (sent
           // сёстры пишут на свой ник — так и подписываем кнопку
           ? '<button class="btn" data-go="' + tgLink + '">' + t(isSisters && c.sisters.tg ? 'writeSisters' : 'sentOpenChat') + '</button>'
-          : '<button class="btn" data-done="tg">' + ICON.tg + t('sendTg') + '</button>') +
+          : '<button class="btn" data-done="chat">' + ICON.tg + t(isSisters && c.sisters.tg ? 'writeSisters' : 'writeBrothers') + '</button>' +
+            '<button class="btn btn-ghost" data-done="share">' + t('sendTg') + '</button>') +
         '<button class="btn btn-ghost" data-act="close">' + t('close') + '</button>' +
       '</div>';
     $('#bookScroll').onclick = function (e) {
-      if (!e.target.closest('[data-done]')) return;
-      sendViaTg(text);
+      var b = e.target.closest('[data-done]');
+      if (!b) return;
+      if (b.getAttribute('data-done') === 'share') { sendViaTg(text); return; }
+      // семья и братья пишут Абдуллаху, сёстры — сестре; текст заявки уже в буфере
+      copyText(text);
+      alertMsg(t('copied'));
+      setTimeout(function () { openLink(tgLink); }, 400);
     };
   }
 
@@ -941,7 +962,7 @@
   }
 
   /* ------------------------------------------------------------- экраны */
-  var SCREENS = ['catalog', 'map', 'fav', 'visa', 'tours', 'cars', 'offer', 'admin'];
+  var SCREENS = ['catalog', 'map', 'fav', 'visa', 'tours', 'cars', 'transfer', 'offer', 'admin'];
   var HOUSING = ['catalog', 'map', 'fav'];
   function switchScreen(name) {
     if (SCREENS.indexOf(name) < 0) name = 'catalog';
