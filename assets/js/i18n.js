@@ -1698,3 +1698,36 @@ window.AMENITIES = {
   uz: { acgTransfer: 'Transfer' },
   en: { acgTransfer: 'Transfer' }
 });
+
+/* Визы других стран: условия и согласие — не про Саудовскую Аравию */
+(function (add) {
+  for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
+})({
+  ru: {
+    visaCountryReqTitle: 'Заявка на визу',
+    visaCountryPoints: [
+      'Визу выдаёт посольство или консульство выбранной страны. Решение и сроки зависят только от них — выдачу визы никто не может гарантировать.',
+      'Заявку ведёт партнёрская визовая компания. Madinah Group передаёт ей вашу заявку и не отвечает за её решения и сроки.',
+      'Цену, порядок оплаты и возврата визовая компания называет до оплаты. Сборы за уже поданную заявку обычно не возвращаются.'
+    ],
+    visaCountryConsent: 'Я согласен(на) с условиями: визу выдаёт посольство выбранной страны, заявку ведёт партнёрская визовая компания, Madinah Group за отказ и сроки не отвечает.'
+  },
+  uz: {
+    visaCountryReqTitle: 'Viza uchun ariza',
+    visaCountryPoints: [
+      'Vizani tanlangan davlat elchixonasi yoki konsulligi beradi. Qaror va muddatlar faqat ularga bog‘liq — vizani hech kim kafolatlay olmaydi.',
+      'Arizani hamkor viza kompaniyasi yuritadi. Madinah Group arizangizni unga topshiradi va uning qarorlari hamda muddatlari uchun javob bermaydi.',
+      'Narx, to‘lov va qaytarish tartibini viza kompaniyasi to‘lovdan oldin aytadi. Topshirilgan ariza uchun yig‘imlar odatda qaytarilmaydi.'
+    ],
+    visaCountryConsent: 'Shartlarga roziman: vizani tanlangan davlat elchixonasi beradi, arizani hamkor viza kompaniyasi yuritadi, Madinah Group rad etish va muddatlar uchun javob bermaydi.'
+  },
+  en: {
+    visaCountryReqTitle: 'Visa request',
+    visaCountryPoints: [
+      'The visa is issued by the embassy or consulate of the chosen country. The decision and timing are theirs alone — no one can guarantee a visa.',
+      'The partner visa company handles the application. Madinah Group passes your request on and is not responsible for its decisions or timing.',
+      'The visa company states the price, payment and refund terms before you pay. Fees for an application already submitted are usually non-refundable.'
+    ],
+    visaCountryConsent: 'I accept the terms: the visa is issued by the embassy of the chosen country, the partner visa company handles the application, and Madinah Group is not liable for refusals or timing.'
+  }
+});

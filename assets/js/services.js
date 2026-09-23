@@ -457,11 +457,11 @@
           '<input id="rqPhone" type="tel" inputmode="tel" placeholder="+998 / +966 / +7" autocomplete="tel">' +
           (u ? '<span class="hint">' + t('bookPhonePh') + '</span>' : '') + '</div>' +
         '<div class="field"><label for="rqNote">' + t('bookComment') + '</label><textarea id="rqNote" placeholder="' + esc(t(notePh)) + '"></textarea></div>' +
-        '<div class="key-points"><h3>' + t('keyPointsTitle') + '</h3><ul>' +
+        '<div class="key-points"><h3>' + t('keyPointsTitle') + '</h3><ul id="rqPoints">' +
           (kind === 'transfer' ? (t('trfPoints') || []).map(function (k) { return '<li>' + esc(k) + '</li>'; }).join('')
             : (svc.terms || []).slice(0, 3).map(function (k) { return '<li>' + esc(L(k)) + '</li>'; }).join('')) +
         '</ul><button class="link-line" data-svc-terms="' + (kind === 'tour' ? 'tours' : kind === 'visa' ? 'visa' : 'cars') + '">' + MR.ICON.doc + t('readTermsL') + '</button></div>' +
-        '<label class="check" id="rqAgreeBox"><input type="checkbox" id="rqAgree"><span>' + esc(kind === 'transfer' ? t('trfConsent') : L(svc.consent)) + '</span></label>' +
+        '<label class="check" id="rqAgreeBox"><input type="checkbox" id="rqAgree"><span id="rqConsentText">' + esc(kind === 'transfer' ? t('trfConsent') : L(svc.consent)) + '</span></label>' +
       '</div>';
     $('#bookCta').innerHTML = '<button class="btn" id="rqSend">' + t('send') + '</button>';
 
@@ -537,9 +537,16 @@
   function updateVisa(f) {
     var ty = visaTypes().filter(function (x) { return x.id === f.item; })[0];
     var iq = ty && ty.cat === 'iqama';
+    var country = ty && ty.cat === 'countries';       // виза другой страны — условия не про КСА
     $('#rqDesc').innerHTML = ty ? '<span>' + esc(L(ty.text)) + '</span><b>' + t('visaPriceAsk') + '</b>' : '';
     $('#rqDateL').textContent = iq ? t('whenNeeded') : t('travelDate') + ' *';
-    $('#rqTitle').textContent = t(iq ? 'iqamaReqTitle' : 'visaReqTitle');
+    $('#rqTitle').textContent = t(country ? 'visaCountryReqTitle' : iq ? 'iqamaReqTitle' : 'visaReqTitle');
+    var pts = country ? (t('visaCountryPoints') || [])
+      : ((SV().visa || {}).terms || []).slice(0, 3).map(function (x) { return L(x); });
+    var ul = $('#rqPoints');
+    if (ul) ul.innerHTML = pts.map(function (x) { return '<li>' + esc(x) + '</li>'; }).join('');
+    var cs = $('#rqConsentText');
+    if (cs) cs.textContent = country ? t('visaCountryConsent') : L((SV().visa || {}).consent);
   }
 
   /* машина: свободна ли на выбранные даты и сколько стоит */
