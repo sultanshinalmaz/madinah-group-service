@@ -1761,3 +1761,12 @@ window.AMENITIES = {
     adminPlaceHint: 'Tap the map to place the pin. If you are inside the apartment, tap “I am here”.'
   }
 });
+
+/* Одна кнопка отправки: текст заявки уже в сообщении */
+(function (add) {
+  for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
+})({
+  ru: { sendFallbackNote: 'Откроется Telegram с готовым текстом — выберите чат и нажмите «Отправить».' },
+  uz: { sendFallbackNote: 'Telegram tayyor matn bilan ochiladi — chatni tanlang va «Yuborish»ni bosing.' },
+  en: { sendFallbackNote: 'Telegram opens with the text ready — pick the chat and press Send.' }
+});

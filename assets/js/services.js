@@ -719,17 +719,12 @@
       '<div class="wrap" style="display:grid;gap:10px;padding-bottom:22px">' +
         (sent
           ? (toPartner ? '' : '<button class="btn" data-go="https://t.me/' + c.brothers.tg + '">' + t('sentOpenChat') + '</button>')
-          : '<button class="btn" data-rq-done="chat">' + MR.ICON.tg + t('sentOpenChat') + '</button>' +
-            '<button class="btn btn-ghost" data-rq-done="share">' + t('sendTg') + '</button>') +
+          : '<button class="btn" data-rq-done="share">' + MR.ICON.tg + t('sendTg') + '</button>') +
         '<button class="btn btn-ghost" data-act="close">' + t('close') + '</button>' +
       '</div>';
+    // одна кнопка: Telegram открывается с готовой заявкой, остаётся выбрать чат и отправить
     $('#bookScroll').onclick = function (e) {
-      var b = e.target.closest('[data-rq-done]');
-      if (!b) return;
-      if (b.getAttribute('data-rq-done') === 'share') { MR.sendViaTg(text); return; }
-      MR.copyText(text);                                   // прямо в чат нужного человека, текст — из буфера
-      MR.alert(t('copied'));
-      setTimeout(function () { MR.openLink(tgLink); }, 400);
+      if (e.target.closest('[data-rq-done]')) MR.sendViaTg(text);
     };
   }
 

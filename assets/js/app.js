@@ -828,18 +828,12 @@
         (sent
           // сёстры пишут на свой ник — так и подписываем кнопку
           ? '<button class="btn" data-go="' + tgLink + '">' + t(isSisters && c.sisters.tg ? 'writeSisters' : 'sentOpenChat') + '</button>'
-          : '<button class="btn" data-done="chat">' + ICON.tg + t(isSisters && c.sisters.tg ? 'writeSisters' : 'writeBrothers') + '</button>' +
-            '<button class="btn btn-ghost" data-done="share">' + t('sendTg') + '</button>') +
+          : '<button class="btn" data-done="share">' + ICON.tg + t('sendTg') + '</button>') +
         '<button class="btn btn-ghost" data-act="close">' + t('close') + '</button>' +
       '</div>';
+    // одна кнопка: Telegram открывается с готовой заявкой, остаётся выбрать чат и отправить
     $('#bookScroll').onclick = function (e) {
-      var b = e.target.closest('[data-done]');
-      if (!b) return;
-      if (b.getAttribute('data-done') === 'share') { sendViaTg(text); return; }
-      // семья и братья пишут Абдуллаху, сёстры — сестре; текст заявки уже в буфере
-      copyText(text);
-      alertMsg(t('copied'));
-      setTimeout(function () { openLink(tgLink); }, 400);
+      if (e.target.closest('[data-done]')) sendViaTg(text);
     };
   }
 
