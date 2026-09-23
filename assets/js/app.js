@@ -809,11 +809,12 @@
       '<div class="done">' +
         '<div class="ring">' + (sent ? ICON.check : ICON.tg) + '</div>' +
         '<h2>' + (sent ? t('sentTitle') : t('sendFallback')) + '</h2>' +
-        '<p>' + (sent ? t('sentText') : t('sendFallbackNote')) + '</p>' +
+        '<p>' + (sent ? t(isSisters && c.sisters.tg ? 'sentTextSisters' : 'sentText') : t('sendFallbackNote')) + '</p>' +
       '</div>' +
       '<div class="wrap" style="display:grid;gap:10px;padding-bottom:22px">' +
         (sent
-          ? '<button class="btn" data-go="' + tgLink + '">' + t('sentOpenChat') + '</button>'
+          // сёстры пишут на свой ник — так и подписываем кнопку
+          ? '<button class="btn" data-go="' + tgLink + '">' + t(isSisters && c.sisters.tg ? 'writeSisters' : 'sentOpenChat') + '</button>'
           : (waLink ? '<button class="btn" data-done="wa">' + ICON.wa + t('sendWa') + '</button>' : '') +
             '<button class="btn btn-ghost" data-done="tg">' + ICON.tg + t('sendTg') + '</button>') +
         '<button class="btn btn-ghost" data-act="close">' + t('close') + '</button>' +

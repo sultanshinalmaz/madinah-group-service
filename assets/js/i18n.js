@@ -1542,14 +1542,17 @@ window.AMENITIES = {
   for (var l in add) for (var k in add[l]) window.I18N[l][k] = add[l][k];
 })({
   ru: {
+    sentTextSisters: 'Ответим в Telegram — работаем круглосуточно, обычно в течение часа.',
     adminVideoBot: 'Видео больше {n} МБ. Пришлите его боту в Telegram (можно переслать пост из канала) — он сам добавит видео в карточку.',
     admNoServer: 'Админка работает, когда приложение открыто по своему адресу, а не из файла.'
   },
   uz: {
+    sentTextSisters: 'Telegramda javob beramiz — kun-u tun ishlaymiz, odatda bir soat ichida.',
     adminVideoBot: 'Video {n} MB dan katta. Uni Telegramda botga yuboring (kanaldagi postni ham qayta yuborsa bo\u2018ladi) — bot videoni kartochkaga o\u2018zi qo\u2018shadi.',
     admNoServer: 'Admin panel ilova o\u2018z manzilidan ochilganda ishlaydi, fayldan emas.'
   },
   en: {
+    sentTextSisters: 'We’ll reply in Telegram — we’re open 24/7, usually within an hour.',
     adminVideoBot: 'The video is larger than {n} MB. Send it to the bot in Telegram (forwarding a channel post works too) — it will add the video to the card.',
     admNoServer: 'The admin panel works when the app is opened from its own address, not from a file.'
   }
