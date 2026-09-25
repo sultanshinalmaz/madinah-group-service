@@ -734,15 +734,15 @@ window.DATA = {
 
   /* --- Оферта: условия аренды и разбор форс-мажоров ---------------------- */
   offer: {
-    version: '2.0',
-    updated: '2026-09-21',
+    version: '2.1',
+    updated: '2026-09-25',
     intro: {
       ru: 'Это условия, по которым проходит бронь. Галочка в заявке означает, что вы с ними согласны. ' +
-          'Главное: честно укажите, кто и сколько человек будет жить; аренда идёт с дня передачи оплаты владельцу; я только связываю вас с владельцем и заселяю — после заселения все вопросы по квартире решаются с ним.',
+          'Главное: честно укажите, кто и сколько человек будет жить; аренда идёт с дня передачи оплаты владельцу; я только связываю вас с владельцем и заселяю — после заселения все вопросы по квартире решаются с ним. Если я организовал и провёл показ квартиры, после показа нельзя обходить меня и договариваться с владельцем напрямую по этой квартире.',
       uz: 'Bu bron shartlari. Arizadagi belgi ular bilan roziligingizni bildiradi. ' +
-          'Asosiysi: kim va necha kishi yashashini to‘g‘ri yozing; ijara to‘lov uy egasiga topshirilgan kundan hisoblanadi; men faqat sizni uy egasi bilan bog‘layman va joylashtiraman — keyin barcha masalalar u bilan hal qilinadi.',
+          'Asosiysi: kim va necha kishi yashashini to‘g‘ri yozing; ijara to‘lov uy egasiga topshirilgan kundan hisoblanadi; men faqat sizni uy egasi bilan bog‘layman va joylashtiraman — keyin barcha masalalar u bilan hal qilinadi. Agar kvartirani ko‘rsatishni men tashkil qilib, o‘zim ko‘rsatgan bo‘lsam, ko‘rishdan keyin meni chetlab o‘tib, shu kvartira bo‘yicha uy egasi bilan to‘g‘ridan-to‘g‘ri ijara kelishuvi qilish mumkin emas.',
       en: 'These are the booking terms. Ticking the box in the request means you accept them. ' +
-          'In short: state honestly who and how many will live there; the rent runs from the day the payment reaches the owner; I only connect you with the owner and settle you in — after move-in, all questions are settled with the owner.'
+          'In short: state honestly who and how many will live there; the rent runs from the day the payment reaches the owner; I only connect you with the owner and settle you in — after move-in, all questions are settled with the owner. If I arranged and conducted the viewing, you may not bypass me after the viewing and arrange the rental of that apartment directly with the owner.'
     },
     sections: [
       {
@@ -753,6 +753,15 @@ window.DATA = {
           { ru: 'Моя работа завершена, когда вы заселились и получили ключи. Дальше все вопросы по квартире — между вами и владельцем.', uz: 'Siz ko‘chib kirib, kalitni olganingizda mening ishim tugaydi. Keyingi barcha masalalar — siz bilan uy egasi o‘rtasida.', en: 'My job is done once you have moved in and received the keys. From then on, all questions about the apartment are between you and the owner.' },
           { ru: 'Риелтор не отвечает за решения владельца, его отказ, споры и конфликты с ним, поломки и состояние квартиры после заселения.', uz: 'Rieltor uy egasining qarorlari, rad javobi, u bilan bo‘ladigan nizolar, ko‘chib kirgandan keyingi buzilishlar va kvartira holati uchun javob bermaydi.', en: 'The realtor is not liable for the owner’s decisions or refusal, disputes with the owner, breakdowns or the condition of the apartment after move-in.' },
           { ru: 'Комиссия риелтора платится один раз и не возвращается. Сумма указана в карточке квартиры.', uz: 'Rieltor haqi bir marta to‘lanadi va qaytarilmaydi. Summasi kvartira kartochkasida.', en: 'The realtor fee is paid once and is non-refundable. The amount is shown on the apartment card.' }
+        ]
+      },
+      {
+        icon: 'key',
+        title: { ru: 'После показа: запрет обхода риелтора', uz: 'Ko‘rikdan keyin: rieltorni chetlab o‘tish taqiqlanadi', en: 'After a viewing: no bypassing the realtor' },
+        items: [
+          { ru: 'Если я организовал и провёл вам показ квартиры, а после просмотра квартира вам не подошла, вы не вправе обращаться к владельцу этой же квартиры напрямую и договариваться с ним об аренде в обход риелтора.', uz: 'Agar kvartirani ko‘rsatishni men tashkil qilib, o‘zim ko‘rsatgan bo‘lsam va ko‘rikdan keyin kvartira sizga mos kelmagan bo‘lsa, shu kvartira bo‘yicha uy egasiga to‘g‘ridan-to‘g‘ri murojaat qilib, rieltorni chetlab o‘tib ijara kelishish mumkin emas.', en: 'If I arranged and conducted the viewing and the apartment did not suit you after the viewing, you may not contact the owner of that same apartment directly and arrange a rental while bypassing the realtor.' },
+          { ru: 'Если после показа вы решите арендовать именно эту квартиру, вопрос аренды, цены, оплаты и заключения договора по ней решается через риелтора, который организовал показ.', uz: 'Agar ko‘rikdan keyin aynan shu kvartirani ijaraga olishga qaror qilsangiz, ijara, narx, to‘lov va shartnoma masalalari ko‘rsatishni tashkil qilgan rieltor orqali hal qilinadi.', en: 'If after the viewing you decide to rent that same apartment, the rental, price, payment and contract are arranged through the realtor who organized the viewing.' },
+          { ru: 'Контакты владельца, полученные во время показа или благодаря риелтору, нельзя использовать для самостоятельного заключения сделки по этой квартире в обход риелтора.', uz: 'Ko‘rik vaqtida yoki rieltor orqali olingan uy egasining aloqa ma’lumotlaridan shu kvartira bo‘yicha rieltorni chetlab o‘tib mustaqil bitim tuzish uchun foydalanish mumkin emas.', en: 'Owner contact details obtained during the viewing or through the realtor may not be used to complete a deal for that apartment independently while bypassing the realtor.' }
         ]
       },
       {
@@ -822,6 +831,12 @@ window.DATA = {
       },
       list: [
         {
+          q: { ru: 'После показа решили обратиться к владельцу напрямую', uz: 'Ko‘rikdan keyin uy egasiga to‘g‘ridan-to‘g‘ri murojaat qilmoqchi bo‘ldik', en: 'After the viewing, we decided to contact the owner directly' },
+          a: { ru: 'Если показ квартиры организовал и провёл риелтор, а клиенту квартира не подошла, нельзя затем договариваться с владельцем этой же квартиры напрямую в обход риелтора. Если клиент после показа всё же решает арендовать именно эту квартиру, сделка по ней оформляется через риелтора, который организовал показ.',
+               uz: 'Agar kvartirani ko‘rsatishni rieltor tashkil qilib, o‘zi ko‘rsatgan bo‘lsa va mijozga kvartira mos kelmagan bo‘lsa, keyin shu kvartira bo‘yicha uy egasi bilan rieltorni chetlab o‘tib to‘g‘ridan-to‘g‘ri kelishish mumkin emas. Agar mijoz ko‘rikdan keyin aynan shu kvartirani ijaraga olishga qaror qilsa, bitim ko‘rsatishni tashkil qilgan rieltor orqali rasmiylashtiriladi.',
+               en: 'If the realtor arranged and conducted the viewing and the apartment did not suit the client, the client may not then arrange the rental of that same apartment directly with the owner while bypassing the realtor. If the client later decides to rent that apartment, the deal is completed through the realtor who arranged the viewing.' }
+        },
+        {
           q: { ru: 'Приехали не те или больше, чем указано в заявке', uz: 'Arizada ko‘rsatilganlardan boshqa yoki ko‘proq odam keldi', en: 'Different or more people arrived than stated in the request' },
           a: { ru: 'Например, бронировали как семья, а приехали студенты, или заявили двоих, а приехало восемь. Владелец вправе не заселить. Сумма брони остаётся владельцу, остальное он возвращает. Риелтор эти деньги себе не берёт и ответственности не несёт. Поэтому состав жильцов указывается честно заранее.',
                uz: 'Masalan, oila sifatida bron qilib, talabalar keldi yoki ikki kishi deb, sakkiz kishi keldi. Uy egasi joylashtirmaslikka haqli. Bron summasi uy egasida qoladi, qolganini u qaytaradi. Rieltor bu pulni olmaydi va javob bermaydi. Shuning uchun tarkib oldindan to‘g‘ri ko‘rsatiladi.',
@@ -883,13 +898,14 @@ window.DATA = {
       { ru: 'Состав и число жильцов указаны верно. Приедут другие или больше — владелец вправе не заселить, сумма брони остаётся ему.', uz: 'Yashovchilar tarkibi va soni to‘g‘ri ko‘rsatildi. Boshqalar yoki ko‘proq odam kelsa — uy egasi joylashtirmasligi mumkin, bron summasi unda qoladi.', en: 'The residents and their number are stated correctly. If others or more arrive, the owner may refuse and the booking amount stays with the owner.' },
       { ru: 'Аренда идёт с дня, когда оплата передана владельцу, а не с дня приезда.', uz: 'Ijara kelgan kundan emas, to‘lov uy egasiga topshirilgan kundan hisoblanadi.', en: 'The rent runs from the day the payment reaches the owner, not from the arrival day.' },
       { ru: 'После заселения поломки и споры решаются с владельцем. Риелтор ответственности не несёт.', uz: 'Ko‘chib kirgandan keyin buzilish va nizolar uy egasi bilan hal qilinadi. Rieltor javob bermaydi.', en: 'After move-in, breakdowns and disputes are settled with the owner. The realtor is not liable.' },
+      { ru: 'После организованного риелтором показа нельзя обходить риелтора и договариваться с владельцем этой же квартиры напрямую. Если решите арендовать её после показа, сделка проходит через риелтора.', uz: 'Rieltor tashkil qilgan ko‘rikdan keyin rieltorni chetlab o‘tib, shu kvartira bo‘yicha uy egasi bilan to‘g‘ridan-to‘g‘ri kelishish mumkin emas. Ko‘rikdan keyin uni ijaraga olishga qaror qilsangiz, bitim rieltor orqali amalga oshiriladi.', en: 'After a viewing arranged by the realtor, you may not bypass the realtor and arrange the rental of the same apartment directly with the owner. If you decide to rent it after the viewing, the deal goes through the realtor.' },
       { ru: 'Деньги, переданные владельцу, и комиссия риелтора не возвращаются.', uz: 'Uy egasiga berilgan pul va rieltor haqi qaytarilmaydi.', en: 'Money passed to the owner and the realtor fee are non-refundable.' }
     ],
 
     consent: {
-      ru: 'Я согласен(на) с условиями брони: состав и число жильцов указаны верно, аренда идёт с дня передачи оплаты владельцу, после заселения вопросы по квартире решаются с владельцем.',
-      uz: 'Bron shartlariga roziman: yashovchilar tarkibi va soni to‘g‘ri, ijara to‘lov uy egasiga topshirilgan kundan hisoblanadi, ko‘chib kirgandan keyin kvartira masalalari uy egasi bilan hal qilinadi.',
-      en: 'I accept the booking terms: the residents and their number are stated correctly, the rent runs from the day the payment reaches the owner, and after move-in questions about the apartment are settled with the owner.'
+      ru: 'Я согласен(на) с условиями брони: состав и число жильцов указаны верно, аренда идёт с дня передачи оплаты владельцу, после заселения вопросы по квартире решаются с владельцем. Если показ квартиры организовал риелтор, я не буду обходить его и договариваться с владельцем этой же квартиры напрямую.',
+      uz: 'Bron shartlariga roziman: yashovchilar tarkibi va soni to‘g‘ri, ijara to‘lov uy egasiga topshirilgan kundan hisoblanadi, ko‘chib kirgandan keyin kvartira masalalari uy egasi bilan hal qilinadi. Agar ko‘rikni rieltor tashkil qilgan bo‘lsa, men uni chetlab o‘tib, shu kvartira bo‘yicha uy egasi bilan to‘g‘ridan-to‘g‘ri kelishmayman.',
+      en: 'I accept the booking terms: the residents and their number are stated correctly, the rent runs from the day the payment reaches the owner, and after move-in questions about the apartment are settled with the owner. If the realtor arranged the viewing, I will not bypass the realtor and arrange the rental of the same apartment directly with the owner.'
     }
   },
 
