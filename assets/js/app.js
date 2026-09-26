@@ -12,6 +12,7 @@
   var LANGS = ['ru', 'uz', 'en'];
   var I18N_DEFAULT = JSON.parse(JSON.stringify(window.I18N));   // исходные надписи: админ правит поверх них
   var ADMIN_PATH = /^\/admin\/?$/.test(location.pathname);      // страница /admin
+  var START_EDIT_ID = (() => { try { return new URL(location.href).searchParams.get('edit') || ''; } catch (e) { return ''; } })();
   var TAB_IDS = ['catalog', 'visa', 'tours', 'cars', 'transfer', 'offer'];
   var TG = window.Telegram && window.Telegram.WebApp ? window.Telegram.WebApp : null;
   var STATUS_RANK = { free: 0, booked: 1, busy: 2, rented: 3, draft: 4 };
@@ -175,7 +176,7 @@
     if (!state.server) return Promise.resolve();
     return api.get(state.isAdmin ? '/api/admin/catalog' : '/api/catalog').then(function (data) {
       if (data.districts) D.districts = Object.assign({}, D.districts, data.districts);
-      if (data.apartments && data.apartments.length) state.items = normalize(data.apartments);
+      if (data.apartments) state.items = normalize(data.apartments);
       if (data.services) D.services = data.services;
       if (data.rev) state.rev = data.rev;
       if (data.content) applyContent(data.content);
@@ -1305,7 +1306,12 @@
     bindGlobal();
 
     // пока идёт заставка, узнаём, есть ли сервер, и подтягиваем свежий каталог
-    var ready = detectServer().then(checkAdmin).then(loadCatalog).then(watchRev);
+    var ready = detectServer().then(checkAdmin).then(loadCatalog).then(function () {
+      if (START_EDIT_ID && state.isAdmin && window.Admin) {
+        setTimeout(function () { window.Admin.edit(START_EDIT_ID); }, 250);
+      }
+      return watchRev();
+    });
 
     storeGet('mr_fav', function (val) {
       state.fav = val ? val.split(',').filter(Boolean) : [];
