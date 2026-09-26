@@ -1,5 +1,5 @@
 /* Проверка режима Vercel без Vercel (запуск: node tools/test-vercel.cjs): Postgres в памяти (pg-mem), эмулятор Vercel Blob,
-   эмулятор Telegram. Приложение поднимается ровно так же, как в функции api/[...path].js. */
+   эмулятор Telegram. Приложение поднимается ровно так же, как в функции api/index.js. */
 'use strict';
 const Module = require('module');
 const http = require('http');
