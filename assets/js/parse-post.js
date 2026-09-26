@@ -116,6 +116,12 @@
     };
     var mark = function (k) { if (res.filled.indexOf(k) < 0) res.filled.push(k); };
 
+    /* ссылка на карту и координаты — это точка дома, а не название района */
+    var mapM = String(text || '').match(/https?:\/\/(?:maps\.app\.goo\.gl|goo\.gl\/maps|(?:www\.)?google\.[a-z.]+\/maps|maps\.google\.[a-z.]+)[^\s)»"']*/i);
+    if (mapM) { res.mapUrl = mapM[0]; mark('map'); }
+    var coordM = String(text || '').match(/\b(24\.\d{3,8})\s*,\s*(39\.\d{3,8})\b/);
+    if (coordM) { res.geo = { lat: +coordM[1], lng: +coordM[2] }; mark('geo'); }
+
     /* код объекта и «СДАНА» */
     var code = String(text || '').match(/Apt:\s*([A-Za-z]{1,4}\s?-?\d{1,4})/);
     if (code) { res.code = code[1].replace(/\s/g, '').toUpperCase(); mark('code'); }
@@ -187,12 +193,19 @@
     }
 
     /* район */
-    var dLine = ru.filter(function (l) { return /📍/.test(l) || /^(Район|Локация)\s*:/i.test(clean(l)); })[0];
+    // строка «📍 https://maps…» — не район: ссылки вырезаем, пустые строки пропускаем
+    var noUrl = function (l) { return l.replace(/https?:\/\/\S+/g, ' '); };
+    var dLine = ru.map(noUrl).filter(function (l) {
+      return (/📍/.test(l) || /^(Район|Локация)\s*:/i.test(clean(l))) &&
+        clean(l).replace(/^(Район|Локация|Расположение)\s*:?\s*/i, '').length > 1;
+    })[0];
     if (dLine) {
       var dn = clean(dLine).replace(/^(Район|Локация|Расположение)\s*:?\s*/i, '');
       var detail = (dn.match(/\(([^)]+)\)/) || [])[1];
       dn = dn.replace(/\([^)]*\)/g, '').trim();
-      var dUz = uz.filter(function (l) { return /📍/.test(l); })[0];
+      var dUz = uz.map(noUrl).filter(function (l) {
+        return /📍/.test(l) && clean(l).replace(/^(Rayon|Manzil|Lokatsiya)\s*:?\s*/i, '').length > 1;
+      })[0];
       var dnUz = dUz ? clean(dUz).replace(/^(Rayon|Manzil|Lokatsiya)\s*:?\s*/i, '').replace(/\([^)]*\)/g, '').trim() : '';
       res.districtName = { ru: dn, uz: dnUz };
       res.district = matchDistrict(dn, dnUz, districts);

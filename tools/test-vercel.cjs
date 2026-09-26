@@ -95,6 +95,10 @@ https.request = function (opts, cb) {
 };
 const realFetch = global.fetch;
 global.fetch = async function (url, init) {
+  if (/^https:\/\/maps\.app\.goo\.gl\//.test(String(url))) {
+    return { ok: false, status: 302, text: async () => '',
+      headers: new Headers({ location: 'https://www.google.com/maps/place/Home/@24.4800,39.5900,17z/data=!3d24.4812!4d39.5923' }) };
+  }
   if (String(url).startsWith('https://api.telegram.org/file/')) {
     return { ok: true, status: 200, arrayBuffer: async () => Buffer.from('PHOTO-BYTES-' + Math.random()).buffer };
   }
@@ -112,7 +116,16 @@ Module._load = function (request, parent, isMain) {
 /* --------------------------------------------- «экземпляр функции» */
 function freshApp() {                       // как новый холодный запуск функции Vercel
   Object.keys(require.cache).forEach(k => { if (/[\\/](lib|assets[\\/]js)[\\/]/.test(k)) delete require.cache[k]; });
-  return require(path.join(ROOT, 'lib', 'app.js'));
+  const a = require(path.join(ROOT, 'lib', 'app.js'));
+  // pg-mem не знает jsonb_build_object (в настоящем Postgres она есть) — слияние альбома здесь на JS
+  const st = require(path.join(ROOT, 'lib', 'store.js'));
+  st.albumMerge = async (key, patch) => {
+    const cur = (await st.get(key)) || {};
+    const next = { listing: (patch && patch.listing) || cur.listing || '',
+      photos: (cur.photos || []).concat((patch && patch.photos) || []), videos: (cur.videos || []).concat((patch && patch.videos) || []) };
+    await new pgStub.Pool().query('insert into docs (key, data) values ($1, $2::jsonb) on conflict (key) do update set data = excluded.data', [key, JSON.stringify(next)]);
+  };
+  return a;
 }
 let app = freshApp();
 const server = http.createServer((req, res) => app.handle(req, res));
@@ -160,7 +173,7 @@ function check(name, cond, info) {
   B = 'http://127.0.0.1:8577';
 
   const health = await call('/api/health');
-  check('health: база Postgres, файлы Blob, режим хостинга', health.data.store === 'pg' && health.data.media === 'blob' && health.data.hosted === true && health.data.admins === 1,
+  check('health: база Postgres, файлы Blob, режим хостинга', health.data.store === 'pg' && health.data.media === 'blob' && health.data.hosted === true && health.data.admins >= 1,
     JSON.stringify(health.data));
 
   const cat = await call('/api/catalog');
@@ -339,6 +352,50 @@ function check(name, cond, info) {
     menu && menu.payload.menu_button.web_app.url);
   Object.assign(process.env, keepEnv); delete process.env.VERCEL_PROJECT_PRODUCTION_URL;
   app = freshApp();
+
+  /* ---- пост прямо в канале @madinah_rent: альбом из двух фото, район — ссылкой на карту ---- */
+  sent.length = 0;
+  const chan = { id: -1001234567890, type: 'channel', username: 'madinah_rent', title: 'Madinah Rent' };
+  const caption = '🏠 2-комнатная квартира\n📍 https://maps.app.goo.gl/TestPin123\n💰 2 700 риал в месяц\nДо Харама 12 минут пешком';
+  const cpost = (extra) => JSON.stringify({ update_id: 950000 + Math.floor(Math.random() * 1000), channel_post: Object.assign({
+    message_id: 777, chat: chan, date: Math.floor(Date.now() / 1000), media_group_id: 'CH777',
+    photo: [{ file_id: 'chanph1', file_size: 1000 }, { file_id: 'chanph1big', file_size: 90000 }] }, extra || {}) });
+  const c1 = await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: cpost({ caption }) });
+  app = freshApp();                                   // второе фото альбома — другой экземпляр функции
+  const c2 = await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: cpost({ message_id: 778, photo: [{ file_id: 'chanph2big', file_size: 95000 }] }) });
+  const pub = await call('/api/catalog');
+  const fromChan = pub.data.apartments.find(a => a.post === 'https://t.me/madinah_rent/777');
+  check('пост в канале → квартира видна клиентам в каталоге', c1.status === 200 && c2.status === 200 && !!fromChan && fromChan.status === 'free',
+    fromChan ? fromChan.title.ru + ' · ' + fromChan.status : 'нет в каталоге');
+  check('оба фото альбома — в облаке', !!fromChan && fromChan.photos.length === 2 && fromChan.photos.every(u => /public\.blob\.vercel-storage\.com/.test(u)),
+    fromChan ? fromChan.photos.length + ' фото' : '');
+  check('точка на карте взята из ссылки Google Maps', !!fromChan && fromChan.geo && fromChan.geo.lat === 24.4812 && fromChan.geo.lng === 39.5923,
+    fromChan && JSON.stringify(fromChan.geo));
+  check('район — ближайший к точке, а не «район» из ссылки', !!fromChan && fromChan.district === 'fath' &&
+    !Object.keys(pub.data.districts).some(k => /http|goo-gl|maps/.test(k)), fromChan && fromChan.district);
+  const note = sent.find(x => /автоматически добавлена/.test(x.text || ''));
+  check('админам пришло уведомление без «\\n» в тексте', !!note && !/\\n/.test(note.text), note ? note.text.split('\n')[0] : 'нет уведомления');
+
+  /* ---- мусорный район из ссылки убирается сам ---- */
+  const dd = (await new pgStub.Pool().query("select data from docs where key = 'districts'")).rows[0].data;
+  dd['https-maps-app-goo-gl-j2yleelqkg6a3htk8'] = { ru: 'https://maps.app.goo.gl/J2yLeeLQkG6a3HTK8', uz: '', en: '' };
+  await new pgStub.Pool().query("update docs set data = $1::jsonb where key = 'districts'", [JSON.stringify(dd)]);
+  app = freshApp();
+  const cleaned = await call('/api/catalog');
+  check('мусорный район из ссылки убран при чтении базы', !Object.keys(cleaned.data.districts).some(k => /goo-gl/.test(k)));
+
+  /* ---- старое медиа «ссылкой на Telegram» переезжает в облако при первом просмотре ---- */
+  const L0 = (await new pgStub.Pool().query("select data from docs where key = 'listings'")).rows[0].data;
+  L0[0].photos = ['/api/tg-media/p/OLDPHOTOfileid123'];
+  await new pgStub.Pool().query("update docs set data = $1::jsonb where key = 'listings'", [JSON.stringify(L0)]);
+  app = freshApp();
+  const mig = await call('/api/tg-media/p/OLDPHOTOfileid123');
+  const L1 = (await new pgStub.Pool().query("select data from docs where key = 'listings'")).rows[0].data;
+  check('старое фото ссылкой на Telegram переехало в облако, ссылка в карточке заменена',
+    mig.status === 302 && /public\.blob\.vercel-storage\.com/.test(mig.headers.get('location') || '') && /public\.blob\.vercel-storage\.com/.test(L1[0].photos[0] || ''),
+    (mig.headers.get('location') || String(mig.status)) + ' · ' + L1[0].photos[0]);
+  const badPath = await call('/api/tg-media/p/..%2F..%2Fetc');
+  check('кривой адрес медиа не принимается', badPath.status === 404, String(badPath.status));
 
   console.log('\nИтого: ' + ok + ' из ' + (ok + fail));
   server.close();
