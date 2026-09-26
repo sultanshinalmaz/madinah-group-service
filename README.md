@@ -24,7 +24,7 @@
 закрытый **отчёт** (заработок, сдано квартир, возвраты) и **PDF-политика для владельцев**.
 Три языка: русский, узбекский, английский (RU · UZ · EN в шапке).
 
-Фронтенд без сборки: обычные HTML, CSS и JS. Backend — одна функция Vercel (`api/[...path].js`),
+Фронтенд без сборки: обычные HTML, CSS и JS. Backend — одна функция Vercel (`api/index.js`),
 данные в Postgres, фото и видео в Vercel Blob, бот на вебхуке.
 На своём компьютере то же самое работает обычным сервером и JSON-файлами.
 
@@ -39,7 +39,7 @@
 | Слой | На Vercel | У себя на компьютере |
 |---|---|---|
 | приложение (index.html, assets/) | статика на CDN Vercel | раздаёт `bot/server.js` |
-| API, админка, бот | функция `api/[...path].js` | тот же `bot/server.js` |
+| API, админка, бот | функция `api/index.js` (все адреса `/api/…` — правилом в `vercel.json`) | тот же `bot/server.js` |
 | общая логика | `lib/app.js` | `lib/app.js` |
 | данные | Postgres (`DATABASE_URL`), таблица `docs` | JSON-файлы в `bot/data/` |
 | фото и видео | Vercel Blob (`BLOB_READ_WRITE_TOKEN`) | `bot/data/media/` + ffmpeg |
@@ -215,7 +215,7 @@ npm run dev                   # http://localhost:8443/admin?admin
 | `lib/store.js` | где лежат данные: Postgres или JSON-файлы |
 | `lib/media.js` | где лежат фото и видео: Vercel Blob или папка (+ ffmpeg) |
 | `lib/env.js` | переменные окружения и `.env` |
-| `api/[...path].js` | точка входа Vercel: один запрос — один вызов функции |
+| `api/index.js` | точка входа Vercel: все адреса `/api/…` попадают сюда по правилу из `vercel.json` |
 | `vercel.json` | настройки Vercel: маршруты, `/admin`, предел времени функции |
 | `bot/server.js` | запуск у себя: раздаёт файлы, опрашивает Telegram, вызывает `lib/app.js` |
 | `tools/test-all.mjs`, `test-local.mjs`, `test-vercel.cjs` | проверки (`npm test`) |
