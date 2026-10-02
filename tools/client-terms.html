@@ -1,0 +1,234 @@
+<!doctype html>
+<!-- Условия аренды для клиентов — те же, что во вкладке «Условия» приложения (DATA.offer).
+     Из этого файла tools/terms-pdf.mjs печатает assets/docs/client-terms-ru.pdf, -uz.pdf, -en.pdf.
+     Язык: client-terms.html?lang=ru | uz | en. Текст берётся из assets/js/data.js; генератор может
+     подложить действующую редакцию с сайта через window.__setData (если её правили в панели). -->
+<html>
+<head>
+<meta charset="utf-8">
+<title>Madinah Group — условия аренды</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=PT+Serif:ital,wght@0,400;0,700;1,400&display=block" rel="stylesheet">
+<style>
+  @page { size: A4; margin: 13mm 16mm 16mm; }
+  :root {
+    --ink: #2b2118;
+    --ink-2: #5d5043;
+    --green: #1d6b45;
+    --gold: #b38c3c;
+    --gold-soft: #efe4cc;
+    --paper: #f8f3ea;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { margin: 0; color: var(--ink); background: #fff; font: 10pt/1.5 'PT Serif', Georgia, serif; }
+
+  /* ---- шапка: эмблема, название, звезда-разделитель (как в документе для владельцев) ---- */
+  .head { text-align: center; padding: 2mm 0 0; }
+  .medal {
+    width: 23mm; height: 23mm; margin: 0 auto 2.2mm; border-radius: 50%; overflow: hidden;
+    background: #efe9df; box-shadow: 0 0 0 .7mm var(--gold), 0 0 0 1.6mm #fff, 0 0 0 1.85mm var(--gold-soft);
+  }
+  .medal img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  h1 { margin: 0; font-size: 17pt; line-height: 1.25; font-weight: 700; letter-spacing: .01em; }
+  .sub { margin-top: .6mm; color: var(--ink-2); font-size: 10pt; }
+  .ver { margin-top: .6mm; color: var(--gold); font-size: 9.4pt; letter-spacing: .04em; }
+  /* разделитель — восьмиконечная звезда (руб аль-хизб), как в заставке и в разделе «Условия» */
+  .rule { display: flex; align-items: center; gap: 3mm; margin: 2.6mm auto 3.2mm; width: 72%; color: var(--gold); }
+  .rule::before, .rule::after { content: ''; flex: 1; height: .3mm; background: linear-gradient(90deg, transparent, var(--gold)); }
+  .rule::after { background: linear-gradient(90deg, var(--gold), transparent); }
+  .rule svg { width: 6mm; height: 6mm; flex: none; }
+
+  .intro {
+    background: var(--paper); border-radius: 2.4mm; padding: 2.6mm 4.2mm; margin-bottom: 3mm;
+    border-inline-start: 1mm solid var(--green);
+  }
+
+  /* ---- «Главное из условий» — то же, что над галочкой в заявке ---- */
+  .main { border: .3mm solid #d9ccb3; border-radius: 2.4mm; padding: 2.4mm 4.2mm 2mm; margin-bottom: 3.8mm; break-inside: avoid; }
+  .main h3 { margin: 0 0 1mm; font-size: 10.6pt; color: var(--green); letter-spacing: .02em; }
+
+  ul.dia { margin: 0; padding: 0; list-style: none; }
+  ul.dia li { position: relative; padding-inline-start: 4mm; margin-bottom: .3mm; }
+  ul.dia li::before {
+    content: ''; position: absolute; inset-inline-start: .4mm; top: .62em; width: 1.5mm; height: 1.5mm;
+    background: var(--gold); transform: rotate(45deg);
+  }
+
+  /* ---- разделы условий ---- */
+  .clause { display: grid; grid-template-columns: 7mm 1fr; gap: 0 2.6mm; margin-bottom: 2.6mm; break-inside: avoid; }
+  .num {
+    width: 6.6mm; height: 6.6mm; border-radius: 50%; background: var(--green); color: #fff;
+    display: grid; place-items: center; font-weight: 700; font-size: 9.6pt; margin-top: .4mm;
+  }
+  .clause h2 { margin: 0 0 .4mm; font-size: 11pt; line-height: 1.35; color: var(--green); }
+
+  /* ---- спорные ситуации: вопрос — ответ ---- */
+  .cases-head { text-align: center; break-after: avoid; }
+  .cases-head h2 { margin: 0; font-size: 13pt; color: var(--green); }
+  .cases-head p { margin: .6mm 0 2.6mm; color: var(--ink-2); font-style: italic; }
+  .case { padding: 1.8mm 0 1.9mm; border-top: .3mm solid var(--gold-soft); break-inside: avoid; }
+  .case:last-child { border-bottom: .3mm solid var(--gold-soft); }
+  .case b { display: block; margin-bottom: .4mm; font-size: 10.3pt; line-height: 1.38; }
+  .case p { margin: 0; color: var(--ink); }
+
+  /* ---- согласие и подписи ---- */
+  .consent { margin-top: 4mm; break-inside: avoid; }
+  .consent h3, .signs h3 { margin: 0 0 1.4mm; font-size: 11pt; color: var(--green); text-align: center; }
+  .consent .how { margin: 0 0 1.4mm; color: var(--ink-2); font-size: 9.6pt; text-align: center; }
+  .tick { display: grid; grid-template-columns: 5mm 1fr; gap: 2.4mm; background: var(--paper); border-radius: 2.4mm; padding: 2.6mm 4mm; }
+  .tick i { width: 4.2mm; height: 4.2mm; border: .4mm solid var(--green); border-radius: .8mm; margin-top: .5mm; position: relative; }
+  .tick i::after {
+    content: ''; position: absolute; left: 1.15mm; top: .25mm; width: 1.2mm; height: 2.3mm;
+    border: solid var(--green); border-width: 0 .45mm .45mm 0; transform: rotate(45deg);
+  }
+
+  .signs { margin-top: 4.2mm; break-inside: avoid; }
+  .signs .how { margin: -0.6mm 0 1.8mm; color: var(--ink-2); font-size: 9.2pt; text-align: center; }
+  .sign-grid { display: grid; grid-template-columns: 1.25fr 1fr; gap: 5mm; }
+  .box { border: .3mm solid #d9ccb3; border-radius: 2.4mm; padding: 2.4mm 3.6mm 2.8mm; }
+  .box b { display: block; margin-bottom: 1.4mm; font-size: 10.6pt; }
+  .line { display: flex; align-items: flex-end; gap: 2mm; min-height: 7.4mm; font-size: 9.4pt; color: var(--ink-2); }
+  .line span { white-space: nowrap; }
+  .line i { flex: 1; border-bottom: .3mm dotted #9c8c74; height: 1px; margin-bottom: 1.3mm; }
+  .line em { flex: 1; font-style: normal; color: var(--ink); padding-bottom: .4mm; }
+
+  .contacts { margin-top: 4mm; padding-top: 2mm; border-top: .3mm solid var(--gold-soft); text-align: center; color: var(--ink-2); font-size: 9.4pt; break-inside: avoid; }
+  .contacts b { color: var(--ink); }
+</style>
+</head>
+<body>
+<main id="doc"></main>
+<script src="../assets/js/data.js"></script>
+<script src="../assets/js/i18n.js"></script>
+<script>
+var STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.3">' +
+  '<rect x="5" y="5" width="14" height="14"/><rect x="5" y="5" width="14" height="14" transform="rotate(45 12 12)"/>' +
+  '<circle cx="12" cy="12" r="2.2"/></g></svg>';
+
+/* Подписи, которых нет в i18n приложения */
+var L = {
+  ru: {
+    sub: 'Madinah Group — подбор и аренда жилья в Медине',
+    ver: function (v, d) { return 'Редакция ' + v + ' от ' + d; },
+    months: ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'],
+    date: function (y, m, d, M) { return d + ' ' + M[m] + ' ' + y; },
+    consent: 'Согласие клиента',
+    consentHow: 'Отмечая галочку в заявке, клиент подтверждает:',
+    signs: 'Подписи',
+    signsHow: 'Если условия подписываются на бумаге.',
+    client: 'Клиент', realtor: 'Риелтор',
+    f: { name: 'ФИО', phone: 'Телефон', apt: 'Квартира (район, адрес)', sign: 'Подпись', date: 'Дата' },
+    brothers: 'Семьи и братья', sisters: 'Сёстры'
+  },
+  uz: {
+    sub: 'Madinah Group — Madinada uy-joy topish va ijara',
+    ver: function (v, d) { return 'Tahrir ' + v + ' · ' + d; },
+    months: ['yanvar', 'fevral', 'mart', 'aprel', 'may', 'iyun', 'iyul', 'avgust', 'sentabr', 'oktabr', 'noyabr', 'dekabr'],
+    date: function (y, m, d, M) { return y + '-yil ' + d + '-' + M[m]; },
+    consent: 'Mijozning roziligi',
+    consentHow: 'Arizada belgi qo‘yib, mijoz quyidagilarni tasdiqlaydi:',
+    signs: 'Imzolar',
+    signsHow: 'Agar shartlar qog‘ozda imzolansa.',
+    client: 'Mijoz', realtor: 'Rieltor',
+    f: { name: 'F.I.Sh.', phone: 'Telefon', apt: 'Kvartira (tuman, manzil)', sign: 'Imzo', date: 'Sana' },
+    brothers: 'Oilalar va birodarlar', sisters: 'Opa-singillar'
+  },
+  en: {
+    sub: 'Madinah Group — finding and renting homes in Madinah',
+    ver: function (v, d) { return 'Version ' + v + ' · ' + d; },
+    months: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
+    date: function (y, m, d, M) { return d + ' ' + M[m] + ' ' + y; },
+    consent: 'Client’s consent',
+    consentHow: 'By ticking the box in the request, the client confirms:',
+    signs: 'Signatures',
+    signsHow: 'If the terms are signed on paper.',
+    client: 'Client', realtor: 'Realtor',
+    f: { name: 'Full name', phone: 'Phone', apt: 'Apartment (district, address)', sign: 'Signature', date: 'Date' },
+    brothers: 'Families and brothers', sisters: 'Sisters'
+  }
+};
+
+function render(data) {
+  var lang = (location.search.match(/lang=(\w+)/) || [])[1] || 'ru';
+  if (!L[lang]) lang = 'ru';
+  var l = L[lang], I = (window.I18N && window.I18N[lang]) || {};
+  var o = data.offer, brand = data.brand || {}, c = data.contacts || {};
+  document.documentElement.lang = lang;
+
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>]/g, function (ch) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;' }[ch]; }); }
+  function t(x) { return x && typeof x === 'object' ? (x[lang] || x.ru || '') : (x || ''); }
+  function line(label, value) {
+    return '<div class="line"><span>' + esc(label) + ':</span>' + (value ? '<em>' + esc(value) + '</em>' : '<i></i>') + '</div>';
+  }
+  function phone(p) {
+    var m = String(p || '').replace(/\D/g, '').match(/^966(\d{2})(\d{3})(\d{4})$/);
+    return m ? '+966 ' + m[1] + ' ' + m[2] + ' ' + m[3] : (p || '');
+  }
+  var dm = String(o.updated || '').match(/^(\d{4})-(\d{2})-(\d{2})/);
+  var when = dm ? l.date(+dm[1], +dm[2] - 1, +dm[3], l.months) : (o.updated || '');
+  var title = I.offerTitle || 'Условия аренды';
+
+  var h = '<header class="head">' +
+      '<div class="medal"><img src="../assets/img/emblem.webp" alt=""></div>' +
+      '<h1>' + esc(title) + '</h1>' +
+      '<div class="sub">' + esc(l.sub) + '</div>' +
+      '<div class="ver">' + esc(l.ver(o.version, when)) + '</div>' +
+      '<div class="rule">' + STAR + '</div>' +
+    '</header>' +
+    '<div class="intro">' + esc(t(o.intro)) + '</div>';
+
+  if (o.keyPoints && o.keyPoints.length) {
+    h += '<section class="main"><h3>' + esc(I.keyPointsTitle || 'Главное из условий') + '</h3><ul class="dia">' +
+      o.keyPoints.map(function (k) { return '<li>' + esc(t(k)) + '</li>'; }).join('') + '</ul></section>';
+  }
+
+  (o.sections || []).forEach(function (s, i) {
+    h += '<section class="clause"><div class="num">' + (i + 1) + '</div><div><h2>' + esc(t(s.title)) + '</h2><ul class="dia">' +
+      (s.items || []).map(function (it) { return '<li>' + esc(t(it)) + '</li>'; }).join('') + '</ul></div></section>';
+  });
+
+  if (o.cases && o.cases.list && o.cases.list.length) {
+    h += '<div class="rule">' + STAR + '</div>' +
+      '<div class="cases-head"><h2>' + esc(t(o.cases.title)) + '</h2>' + (o.cases.note ? '<p>' + esc(t(o.cases.note)) + '</p>' : '') + '</div>' +
+      '<section class="cases">' + o.cases.list.map(function (q) {
+        return '<div class="case"><b>' + esc(t(q.q)) + '</b><p>' + esc(t(q.a)) + '</p></div>';
+      }).join('') + '</section>';
+  }
+
+  if (o.consent) {
+    h += '<section class="consent"><h3>' + esc(l.consent) + '</h3><p class="how">' + esc(l.consentHow) + '</p>' +
+      '<div class="tick"><i></i><div>' + esc(t(o.consent)) + '</div></div></section>';
+  }
+
+  h += '<section class="signs"><h3>' + esc(l.signs) + '</h3><p class="how">' + esc(l.signsHow) + '</p><div class="sign-grid">' +
+      '<div class="box"><b>' + esc(l.client) + '</b>' +
+        line(l.f.name) + line(l.f.phone) + line(l.f.apt) + line(l.f.sign) + line(l.f.date) +
+      '</div>' +
+      '<div class="box"><b>' + esc(l.realtor) + '</b>' +
+        line(l.f.name, t(brand.realtor)) + line(l.f.phone, phone(c.brothers && c.brothers.phone)) + line(l.f.sign) + line(l.f.date) +
+      '</div>' +
+    '</div></section>';
+
+  var parts = [];
+  if (c.brothers && c.brothers.tg) parts.push('<b>' + esc(l.brothers) + ':</b> Telegram @' + esc(c.brothers.tg) + (c.brothers.phone ? ', ' + esc(phone(c.brothers.phone)) : ''));
+  if (c.sisters && c.sisters.tg) parts.push('<b>' + esc(l.sisters) + ':</b> Telegram @' + esc(c.sisters.tg));
+  if (c.hours) parts.push(esc(t(c.hours)));
+  if (parts.length) h += '<footer class="contacts">' + parts.join(' &nbsp;·&nbsp; ') + '</footer>';
+
+  document.getElementById('doc').innerHTML = h;
+  document.title = 'Madinah Group — ' + title;
+  window.__footer = { left: 'Madinah Group · ' + title + ' · ' + l.ver(o.version, when) };
+  Promise.all([document.fonts.ready, new Promise(function (r) {
+    var img = document.querySelector('.medal img');
+    if (img.complete) r(); else { img.onload = r; img.onerror = r; }
+  })]).then(function () { window.__ready = true; });
+}
+
+/* Генератор с ?ext=1 сам подкладывает действующую редакцию с сайта; без него — текст из data.js */
+window.__setData = render;
+if (!/[?&]ext=1/.test(location.search)) render(window.DATA);
+</script>
+</body>
+</html>
