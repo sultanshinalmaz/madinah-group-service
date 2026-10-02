@@ -734,8 +734,8 @@ window.DATA = {
 
   /* --- Оферта: условия аренды и разбор форс-мажоров ---------------------- */
   offer: {
-    version: '2.1',
-    updated: '2026-09-25',
+    version: '2.2',
+    updated: '2026-10-02',
     intro: {
       ru: 'Это условия, по которым проходит бронь. Галочка в заявке означает, что вы с ними согласны. ' +
           'Главное: честно укажите, кто и сколько человек будет жить; аренда идёт с дня передачи оплаты владельцу; я только связываю вас с владельцем и заселяю — после заселения все вопросы по квартире решаются с ним. Если я организовал и провёл показ квартиры, после показа нельзя обходить меня и договариваться с владельцем напрямую по этой квартире.',
@@ -752,7 +752,9 @@ window.DATA = {
           { ru: 'Я риелтор-посредник: подбираю квартиру, показываю её и помогаю договориться с владельцем. Квартира принадлежит не мне.', uz: 'Men rieltor-vositachiman: kvartira tanlayman, ko‘rsataman va uy egasi bilan kelishishga yordam beraman. Kvartira menga tegishli emas.', en: 'I am a realtor and intermediary: I find the apartment, show it and help you agree with the owner. The apartment does not belong to me.' },
           { ru: 'Моя работа завершена, когда вы заселились и получили ключи. Дальше все вопросы по квартире — между вами и владельцем.', uz: 'Siz ko‘chib kirib, kalitni olganingizda mening ishim tugaydi. Keyingi barcha masalalar — siz bilan uy egasi o‘rtasida.', en: 'My job is done once you have moved in and received the keys. From then on, all questions about the apartment are between you and the owner.' },
           { ru: 'Риелтор не отвечает за решения владельца, его отказ, споры и конфликты с ним, поломки и состояние квартиры после заселения.', uz: 'Rieltor uy egasining qarorlari, rad javobi, u bilan bo‘ladigan nizolar, ko‘chib kirgandan keyingi buzilishlar va kvartira holati uchun javob bermaydi.', en: 'The realtor is not liable for the owner’s decisions or refusal, disputes with the owner, breakdowns or the condition of the apartment after move-in.' },
-          { ru: 'Комиссия риелтора платится один раз и не возвращается. Сумма указана в карточке квартиры.', uz: 'Rieltor haqi bir marta to‘lanadi va qaytarilmaydi. Summasi kvartira kartochkasida.', en: 'The realtor fee is paid once and is non-refundable. The amount is shown on the apartment card.' }
+          { ru: 'Комиссия риелтора — оплата моей работы: подбор квартиры, поездка и показ, договорённость с владельцем. Она платится один раз, сумма указана в карточке квартиры. Если вы посмотрели квартиру, согласились её снять и заплатили комиссию — работа выполнена, и комиссия не возвращается: ни полностью, ни частично, даже если потом вы передумали или нашли другую квартиру.',
+            uz: 'Rieltor haqi — mening ishim uchun to‘lov: kvartira topish, olib borib ko‘rsatish, uy egasi bilan kelishish. U bir marta to‘lanadi, summasi kvartira kartochkasida. Agar kvartirani ko‘rib, ijaraga olishga rozi bo‘lsangiz va rieltor haqini to‘lagan bo‘lsangiz — ish bajarilgan, rieltor haqi qaytarilmaydi: na to‘liq, na qisman, keyin fikringizni o‘zgartirsangiz yoki boshqa kvartira topsangiz ham.',
+            en: 'The realtor fee pays for my work: finding the apartment, taking you to see it and agreeing terms with the owner. It is paid once; the amount is shown on the apartment card. Once you have viewed the apartment, agreed to rent it and paid the fee, the work is done and the fee is not refunded — in full or in part — even if you later change your mind or find another apartment.' }
         ]
       },
       {
@@ -837,6 +839,14 @@ window.DATA = {
                en: 'If the realtor arranged and conducted the viewing and the apartment did not suit the client, the client may not then arrange the rental of that same apartment directly with the owner while bypassing the realtor. If the client later decides to rent that apartment, the deal is completed through the realtor who arranged the viewing.' }
         },
         {
+          q: { ru: 'Заплатил риелтору, а потом нашёл другую квартиру — вернёте комиссию?',
+               uz: 'Rieltorga to‘ladim, keyin boshqa kvartira topdim — rieltor haqini qaytarasizmi?',
+               en: 'I paid the realtor and then found another apartment — will you refund the fee?' },
+          a: { ru: 'Нет. Риелтор уже сделал свою работу: подобрал квартиру, отвёз вас и показал её, договорился с владельцем, а вы согласились снять и заплатили. Комиссия — оплата этой работы, а не предоплата за жильё, поэтому она не возвращается, ни полностью, ни частично — даже если другую квартиру вы нашли в тот же день. Пока не решили окончательно, комиссию не платите.',
+               uz: 'Yo‘q. Rieltor o‘z ishini bajarib bo‘lgan: kvartira topgan, sizni olib borib ko‘rsatgan, uy egasi bilan kelishgan, siz esa ijaraga olishga rozi bo‘lib, to‘lagansiz. Rieltor haqi — shu ish uchun to‘lov, uy uchun oldindan to‘lov emas, shuning uchun u qaytarilmaydi: na to‘liq, na qisman — boshqa kvartirani o‘sha kuni topgan bo‘lsangiz ham. Qat’iy qaror qilmaguningizcha rieltor haqini to‘lamang.',
+               en: 'No. The realtor has already done the work: found the apartment, took you to see it and agreed terms with the owner — and you agreed to rent it and paid. The fee pays for that work; it is not a prepayment for the apartment, so it is not refunded, in full or in part, even if you found another place the same day. If you have not decided yet, do not pay the fee.' }
+        },
+        {
           q: { ru: 'Приехали не те или больше, чем указано в заявке', uz: 'Arizada ko‘rsatilganlardan boshqa yoki ko‘proq odam keldi', en: 'Different or more people arrived than stated in the request' },
           a: { ru: 'Например, бронировали как семья, а приехали студенты, или заявили двоих, а приехало восемь. Владелец вправе не заселить. Сумма брони остаётся владельцу, остальное он возвращает. Риелтор эти деньги себе не берёт и ответственности не несёт. Поэтому состав жильцов указывается честно заранее.',
                uz: 'Masalan, oila sifatida bron qilib, talabalar keldi yoki ikki kishi deb, sakkiz kishi keldi. Uy egasi joylashtirmaslikka haqli. Bron summasi uy egasida qoladi, qolganini u qaytaradi. Rieltor bu pulni olmaydi va javob bermaydi. Shuning uchun tarkib oldindan to‘g‘ri ko‘rsatiladi.',
@@ -899,13 +909,15 @@ window.DATA = {
       { ru: 'Аренда идёт с дня, когда оплата передана владельцу, а не с дня приезда.', uz: 'Ijara kelgan kundan emas, to‘lov uy egasiga topshirilgan kundan hisoblanadi.', en: 'The rent runs from the day the payment reaches the owner, not from the arrival day.' },
       { ru: 'После заселения поломки и споры решаются с владельцем. Риелтор ответственности не несёт.', uz: 'Ko‘chib kirgandan keyin buzilish va nizolar uy egasi bilan hal qilinadi. Rieltor javob bermaydi.', en: 'After move-in, breakdowns and disputes are settled with the owner. The realtor is not liable.' },
       { ru: 'После организованного риелтором показа нельзя обходить риелтора и договариваться с владельцем этой же квартиры напрямую. Если решите арендовать её после показа, сделка проходит через риелтора.', uz: 'Rieltor tashkil qilgan ko‘rikdan keyin rieltorni chetlab o‘tib, shu kvartira bo‘yicha uy egasi bilan to‘g‘ridan-to‘g‘ri kelishish mumkin emas. Ko‘rikdan keyin uni ijaraga olishga qaror qilsangiz, bitim rieltor orqali amalga oshiriladi.', en: 'After a viewing arranged by the realtor, you may not bypass the realtor and arrange the rental of the same apartment directly with the owner. If you decide to rent it after the viewing, the deal goes through the realtor.' },
-      { ru: 'Деньги, переданные владельцу, и комиссия риелтора не возвращаются.', uz: 'Uy egasiga berilgan pul va rieltor haqi qaytarilmaydi.', en: 'Money passed to the owner and the realtor fee are non-refundable.' }
+      { ru: 'Деньги, переданные владельцу, не возвращаются. Комиссия риелтора после показа и вашего согласия тоже не возвращается — даже если потом вы нашли другую квартиру.',
+        uz: 'Uy egasiga berilgan pul qaytarilmaydi. Ko‘rik va roziligingizdan keyin rieltor haqi ham qaytarilmaydi — keyin boshqa kvartira topsangiz ham.',
+        en: 'Money passed to the owner is non-refundable. The realtor fee is also non-refundable once you have viewed the apartment and agreed — even if you later find another apartment.' }
     ],
 
     consent: {
-      ru: 'Я согласен(на) с условиями брони: состав и число жильцов указаны верно, аренда идёт с дня передачи оплаты владельцу, после заселения вопросы по квартире решаются с владельцем. Если показ квартиры организовал риелтор, я не буду обходить его и договариваться с владельцем этой же квартиры напрямую.',
-      uz: 'Bron shartlariga roziman: yashovchilar tarkibi va soni to‘g‘ri, ijara to‘lov uy egasiga topshirilgan kundan hisoblanadi, ko‘chib kirgandan keyin kvartira masalalari uy egasi bilan hal qilinadi. Agar ko‘rikni rieltor tashkil qilgan bo‘lsa, men uni chetlab o‘tib, shu kvartira bo‘yicha uy egasi bilan to‘g‘ridan-to‘g‘ri kelishmayman.',
-      en: 'I accept the booking terms: the residents and their number are stated correctly, the rent runs from the day the payment reaches the owner, and after move-in questions about the apartment are settled with the owner. If the realtor arranged the viewing, I will not bypass the realtor and arrange the rental of the same apartment directly with the owner.'
+      ru: 'Я согласен(на) с условиями брони: состав и число жильцов указаны верно, аренда идёт с дня передачи оплаты владельцу, после заселения вопросы по квартире решаются с владельцем. Если показ квартиры организовал риелтор, я не буду обходить его и договариваться с владельцем этой же квартиры напрямую. Комиссия риелтора после показа и моего согласия не возвращается, даже если я найду другую квартиру.',
+      uz: 'Bron shartlariga roziman: yashovchilar tarkibi va soni to‘g‘ri, ijara to‘lov uy egasiga topshirilgan kundan hisoblanadi, ko‘chib kirgandan keyin kvartira masalalari uy egasi bilan hal qilinadi. Agar ko‘rikni rieltor tashkil qilgan bo‘lsa, men uni chetlab o‘tib, shu kvartira bo‘yicha uy egasi bilan to‘g‘ridan-to‘g‘ri kelishmayman. Ko‘rik va roziligimdan keyin rieltor haqi qaytarilmaydi, boshqa kvartira topsam ham.',
+      en: 'I accept the booking terms: the residents and their number are stated correctly, the rent runs from the day the payment reaches the owner, and after move-in questions about the apartment are settled with the owner. If the realtor arranged the viewing, I will not bypass the realtor and arrange the rental of the same apartment directly with the owner. The realtor fee is non-refundable once I have viewed the apartment and agreed, even if I find another apartment.'
     }
   },
 
