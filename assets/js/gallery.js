@@ -14,20 +14,26 @@
   var PLAY    = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.5v13a1 1 0 0 0 1.5.9l10.2-6.5a1 1 0 0 0 0-1.7L9.5 4.6A1 1 0 0 0 8 5.5Z"/></svg>';
   var CLOSE   = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>';
 
+  /* видео больше 20 МБ бот не скачивает: вместо файла ссылка на пост, ролик смотрят в Telegram */
+  var TG_POST = /^https:\/\/t\.me\/[A-Za-z0-9_]{4,64}\/\d{1,9}$/;
+
   /* ---------------------------------------------------------- материалы */
   function items(ap) {
     var list = (ap.photos || []).map(function (p) {
       return { type: 'photo', full: MR.media(p), card: MR.mediaCard(p) };
     });
     (ap.videos || []).forEach(function (v) {
+      var tg = TG_POST.test(v.src || '') ? v.src : '';
       var slide = {
-        type: 'video', src: MR.media(v.src),
+        type: 'video', tg: tg, src: tg ? '' : MR.media(v.src),
         poster: v.poster ? MR.mediaCard(v.poster) : (list[0] ? list[0].card : ''),
         posterFull: v.poster ? MR.media(v.poster) : (list[0] ? list[0].full : '')
       };
       // видеообход ставим вторым: его сразу видно, но обложкой остаётся фото
       list.splice(Math.min(1, list.length), 0, slide);
     });
+    // ни фото, ни видео (из канала ничего не скачалось) — хотя бы ссылка на сам пост
+    if (!list.length && TG_POST.test(ap.post || '')) list.push({ type: 'video', tg: ap.post, src: '', poster: '', posterFull: '' });
     return list;
   }
 
@@ -39,6 +45,15 @@
   }
 
   function slideHTML(it, i, big) {
+    if (it.type === 'video' && it.tg) {
+      // обложка от Telegram маленькая (320 px): размытым фоном и целиком по центру
+      var img = '<img src="' + it.poster + '" alt="" loading="lazy" decoding="async" draggable="false">';
+      return '<div class="gal-slide is-video is-tg" data-tg-open="' + it.tg + '">' +
+        (it.poster ? img.replace('<img ', '<img class="gal-tg-bg" aria-hidden="true" ') + img : '') +
+        '<span class="gal-play">' + PLAY + '</span>' +
+        '<span class="gal-vlabel">' + MR.t('videoInTg') + '</span>' +
+      '</div>';
+    }
     if (it.type === 'video') {
       return '<div class="gal-slide is-video" data-lb-open="' + i + '">' +
         '<img src="' + it.poster + '" alt="" loading="lazy" decoding="async" draggable="false">' +
@@ -155,6 +170,14 @@
       MR.haptic('light');
       return true;
     }
+    var tgo = e.target.closest('[data-tg-open]');
+    if (tgo) {
+      e.preventDefault();
+      e.stopPropagation();
+      MR.openLink(tgo.getAttribute('data-tg-open'));
+      MR.haptic('light');
+      return true;
+    }
     var open = e.target.closest('[data-lb-open]');
     if (open) {
       var owner = open.closest('.gal');
@@ -186,6 +209,8 @@
 
     lb.addEventListener('click', function (e) {
       if (e.target.closest('.lb-close')) { closeLightbox(); return; }
+      var tgo = e.target.closest('[data-tg-open]');
+      if (tgo) { MR.openLink(tgo.getAttribute('data-tg-open')); return; }
       if (e.target.closest('.lb-arrow')) { lbGo(lbIndex() + (e.target.closest('.next') ? 1 : -1)); return; }
       var th = e.target.closest('.lb-thumb');
       if (th) { lbGo(+th.getAttribute('data-i')); return; }
@@ -267,6 +292,11 @@
     lbItems = items(ap);
     var track = lb.querySelector('.lb-track');
     track.innerHTML = lbItems.map(function (it, i) {
+      if (it.type === 'video' && it.tg) {
+        return '<div class="lb-slide is-video is-tg" data-i="' + i + '">' +
+          (it.posterFull ? '<img src="' + it.posterFull + '" alt="" decoding="async" draggable="false">' : '') +
+          '<button class="lb-tg" data-tg-open="' + it.tg + '">' + PLAY + '<span>' + MR.t('videoInTg') + '</span></button></div>';
+      }
       if (it.type === 'video') {
         return '<div class="lb-slide is-video" data-i="' + i + '">' +
           '<video src="' + it.src + '" poster="' + (it.posterFull || it.poster) + '" controls playsinline preload="none"></video></div>';

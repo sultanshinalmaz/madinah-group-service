@@ -253,7 +253,8 @@
       var img = m.type === 'video' ? (m.preview || (m.poster ? MR.media(m.poster) : '')) : (m.preview || MR.mediaCard(m.url));
       return '<div class="ed-m">' +
         (img ? '<img src="' + esc(img) + '" alt="" onerror="this.onerror=null;this.src=\'' + esc(m.type === 'photo' && m.url ? MR.media(m.url) : '') + '\'">' : '') +
-        (m.type === 'video' ? '<span class="ed-vid">' + window.Gallery.playIcon + '</span>' : (i === firstPhotoIndex() ? '<span class="ed-cover">' + (MR.state.lang === 'en' ? 'Cover' : MR.state.lang === 'uz' ? 'Muqova' : 'Обложка') + '</span>' : '')) +
+        (m.type === 'video' ? '<span class="ed-vid">' + window.Gallery.playIcon + '</span>' +
+          (/^https:\/\/t\.me\//.test(m.src || '') ? '<span class="ed-cover">Telegram</span>' : '') : (i === firstPhotoIndex() ? '<span class="ed-cover">' + (MR.state.lang === 'en' ? 'Cover' : MR.state.lang === 'uz' ? 'Muqova' : 'Обложка') + '</span>' : '')) +
         (m.pending ? '<div class="ed-prog"><i style="width:' + Math.round((m.progress || 0) * 100) + '%"></i></div>'
                    : '<div class="ed-tools"><button data-adm-media="left" data-i="' + i + '" aria-label="' + t('prev') + '">‹</button>' +
                      '<button class="del" data-adm-media="del" data-i="' + i + '" aria-label="×">×</button>' +

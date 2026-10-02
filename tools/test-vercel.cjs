@@ -397,6 +397,64 @@ function check(name, cond, info) {
   const badPath = await call('/api/tg-media/p/..%2F..%2Fetc');
   check('кривой адрес медиа не принимается', badPath.status === 404, String(badPath.status));
 
+  /* ---- видео больше 20 МБ: обложка и ссылка на пост, ролик смотрят в Telegram ---- */
+  sent.length = 0;
+  app = freshApp();
+  const bv = await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: JSON.stringify({ update_id: 960001, channel_post: {
+    message_id: 790, chat: chan, date: Math.floor(Date.now() / 1000), caption: '🏠 Евротрёшка / Медина\n💰 3 000 риал в месяц',
+    video: { file_id: 'bigvid790', file_size: 25 * 1048576, duration: 127, width: 720, height: 1280,
+      thumbnail: { file_id: 'bigvid790thumb', file_size: 9000, width: 180, height: 320 } } } }) });
+  const bigAp = (await call('/api/catalog')).data.apartments.find(a => a.post === 'https://t.me/madinah_rent/790');
+  const bigV = bigAp && bigAp.videos[0];
+  check('видео больше 20 МБ → в карточке ссылка на пост и обложка из облака',
+    bv.status === 200 && !!bigV && bigV.src === 'https://t.me/madinah_rent/790' && /public\.blob\.vercel-storage\.com\/media\/tg-[a-f0-9]+-cover\.jpg$/.test(bigV.poster),
+    bigV ? JSON.stringify(bigV) : 'нет карточки');
+  check('само большое видео бот скачать не пытался', !tgCalls.some(c => c.method === 'getFile' && c.payload.file_id === 'bigvid790'));
+  const bigNoteMsg = sent.find(x => /Смотреть в Telegram/.test(x.text || ''));
+  check('админам объяснено про «Смотреть в Telegram», без совета грузить в панель', !!bigNoteMsg && !/Редактировать/.test(bigNoteMsg.text),
+    bigNoteMsg ? bigNoteMsg.text.slice(0, 70) : 'нет');
+  const keep = await call('/api/admin/listing', { method: 'POST', headers: jsonHdr(asAdmin()), body: JSON.stringify({ apartment: Object.assign({}, bigAp, {
+    videos: bigAp.videos.concat([{ src: 'https://evil.example.com/v.mp4', poster: '' }, { src: 'https://t.me/madinah_rent/790/../x', poster: '' }]) }) }) });
+  check('ссылка на пост переживает сохранение из панели, чужие ссылки на видео отброшены',
+    keep.status === 200 && keep.data.apartment.videos.length === 1 && keep.data.apartment.videos[0].src === 'https://t.me/madinah_rent/790',
+    keep.data.apartment ? JSON.stringify(keep.data.apartment.videos.map(v => v.src)) : keep.text);
+
+  /* ---- объявление о машине в канале — не квартира; второе фото альбома тоже мимо ---- */
+  sent.length = 0;
+  const carPost = (extra) => JSON.stringify({ update_id: 961000 + Math.floor(Math.random() * 1000), channel_post: Object.assign({
+    chat: chan, date: Math.floor(Date.now() / 1000), media_group_id: 'CAR791' }, extra) });
+  const distBefore = Object.keys((await call('/api/catalog')).data.districts).length;
+  app = freshApp();
+  const car1 = await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: carPost({ message_id: 791,
+    caption: '🤩 СДАЁТСЯ В АРЕНДУ: Lincoln MKX (2016)\nОписание: Сдаётся комфортный кроссовер\n📍 Автомобиль находится в Медине',
+    photo: [{ file_id: 'car791', file_size: 90000 }] }) });
+  app = freshApp();
+  const car2 = await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: carPost({ message_id: 792, photo: [{ file_id: 'car792', file_size: 90000 }] }) });
+  const afterCar = await call('/api/catalog');
+  check('объявление о машине не стало квартирой — ни первое фото альбома, ни второе, район не появился',
+    car1.status === 200 && car2.status === 200 && !afterCar.data.apartments.some(a => /madinah_rent\/79[12]$/.test(a.post || '')) &&
+    Object.keys(afterCar.data.districts).length === distBefore,
+    afterCar.data.apartments.filter(a => /79[12]$/.test(a.post || '')).map(a => a.title.ru).join(', ') || 'районов: ' + Object.keys(afterCar.data.districts).length);
+  check('фото машины не скачивались', !tgCalls.some(c => c.method === 'getFile' && /^car79/.test(c.payload.file_id || '')));
+  const carNote = sent.filter(x => /похож на объявление о машине/.test(x.text || ''));
+  check('на весь альбом машины — одно пояснение каждому админу', carNote.length === app.ADMIN_IDS.length && /перешлите этот пост боту/.test(carNote[0].text),
+    carNote.length + ' сообщ.');
+
+  /* ---- служебное «закрепил сообщение» — молча мимо ---- */
+  sent.length = 0;
+  app = freshApp();
+  const pin = await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: JSON.stringify({ update_id: 962001, channel_post: {
+    message_id: 793, chat: chan, date: Math.floor(Date.now() / 1000), pinned_message: { message_id: 790, chat: chan, date: 1 } } }) });
+  const afterPin = await call('/api/catalog');
+  check('служебное сообщение канала не создаёт пустую карточку и не шлёт уведомлений',
+    pin.status === 200 && !afterPin.data.apartments.some(a => /madinah_rent\/793$/.test(a.post || '')) && !sent.length,
+    sent.length ? sent[0].text.slice(0, 50) : '');
+
+  const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
+  check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
+    pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&
+    pk('🏠 Kvartira / Madina\nSuv va svet kiradi') === 'home' && pk('Аренда авто с водителем') === 'car' && pk('') === 'empty');
+
   console.log('\nИтого: ' + ok + ' из ' + (ok + fail));
   server.close();
   process.exit(fail ? 1 : 0);

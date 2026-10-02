@@ -258,6 +258,32 @@
     return null;
   }
 
+  /* О чём пост канала: 'home' — квартира, 'car' — машина, 'other' — объявление, 'empty' — без текста.
+     Решают первые строки: у Абдуллаха там «🏠 Квартира…» или «🚘 марка». Проверено на 161 посте
+     @madinah_rent (02.10.2026): 153 квартиры, 5 машин и объявлений про авто, 3 прочих — без ошибок.
+     «Suv» не признак машины: по-узбекски это «вода». Регулярки собираем при первом вызове. */
+  var KIND_RE = null;
+  function kind(text) {
+    var t = String(text || '');
+    if (!t.trim()) return 'empty';
+    if (!KIND_RE) {
+      var w = function (s) { return '(?:^|[^\\p{L}])(?:' + s + ')'; };
+      KIND_RE = {
+        home: new RegExp('🏠|🏡|' + w('квартир|комнат|студи|однушк|двушк|трёшк|трешк|евро\\s*-?\\s*\\d|апартамент|койко|' +
+          'kvartira|xonali|apartment|studio|bedroom|room'), 'iu'),
+        car: new RegExp('🚘|🚗|🚙|' + w('lincoln|toyota|camry|hyundai|kia|nissan|lexus|mercedes|bmw|audi|infiniti|chevrolet|ford|' +
+          'gmc|cadillac|honda|mazda|jeep|land\\s*cruiser|tahoe|yukon') + '|' +
+          w('автомобил|авто(?!\\p{L})|машин[аыуе]?(?!\\p{L})|внедорожник|кроссовер|седан|пробег|avtomobil|mashina|cars?(?!\\p{L})'), 'iu')
+      };
+    }
+    var head = t.split('\n').filter(function (l) { return /[A-Za-zА-Яа-яЁё]/.test(l); }).slice(0, 3).join('\n');
+    if (KIND_RE.home.test(head)) return 'home';
+    if (KIND_RE.car.test(head)) return 'car';
+    if (KIND_RE.home.test(t) && !KIND_RE.car.test(t)) return 'home';
+    return 'other';
+  }
+
+  parsePost.kind = kind;
   parsePost.matchDistrict = matchDistrict;
   root.parsePost = parsePost;
   if (typeof module !== 'undefined' && module.exports) module.exports = parsePost;
