@@ -42,7 +42,8 @@
   var SMALL_POSTER = /-cover(-m)?\.(jpe?g|webp|png)$/i;
   function posterHTML(it) {
     if (!it.poster) {
-      return it.src ? '<video class="gal-frame" src="' + it.src + '#t=0.5" preload="metadata" muted playsinline disablepictureinpicture tabindex="-1"></video>' : '';
+      // адрес ставим, когда карточка подъезжает к экрану (bind): иначе грузятся кадры всех видео ленты разом
+      return it.src ? '<video class="gal-frame" data-src="' + it.src + '#t=0.5" preload="metadata" muted playsinline disablepictureinpicture tabindex="-1"></video>' : '';
     }
     var img = '<img src="' + it.poster + '" alt="" loading="lazy" decoding="async" draggable="false">';
     return SMALL_POSTER.test(it.poster) ? img.replace('<img ', '<img class="gal-tg-bg" aria-hidden="true" ') + img : img;
@@ -141,8 +142,22 @@
     setTimeout(function () { sync(gal); }, smooth === false ? 0 : 380);
   }
 
+  /* кадр-обложка видео: грузим, когда до экрана осталось ~полэкрана */
+  var frameIO = null;
+  function lazyFrames(root) {
+    var list = (root || document).querySelectorAll('video.gal-frame[data-src]');
+    if (!list.length) return;
+    var load = function (v) { v.src = v.getAttribute('data-src'); v.removeAttribute('data-src'); };
+    if (!('IntersectionObserver' in window)) { Array.prototype.forEach.call(list, load); return; }
+    if (!frameIO) frameIO = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { if (e.isIntersecting) { frameIO.unobserve(e.target); load(e.target); } });
+    }, { rootMargin: '400px 400px' });
+    Array.prototype.forEach.call(list, function (v) { frameIO.observe(v); });
+  }
+
   /* подключить прокрутку ко всем лентам внутри root */
   function bind(root) {
+    lazyFrames(root);
     var gals = (root || document).querySelectorAll('.gal[data-n]');
     Array.prototype.forEach.call(gals, function (gal) {
       if (gal._bound) return;
