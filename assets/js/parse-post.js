@@ -200,13 +200,13 @@
         clean(l).replace(/^(Район|Локация|Расположение)\s*:?\s*/i, '').length > 1;
     })[0];
     if (dLine) {
-      var dn = clean(dLine).replace(/^(Район|Локация|Расположение)\s*:?\s*/i, '');
+      var dn = cleanDistrict(clean(dLine).replace(/^(Район|Локация|Расположение)\s*:?\s*/i, ''));
       var detail = (dn.match(/\(([^)]+)\)/) || [])[1];
       dn = dn.replace(/\([^)]*\)/g, '').trim();
       var dUz = uz.map(noUrl).filter(function (l) {
         return /📍/.test(l) && clean(l).replace(/^(Rayon|Manzil|Lokatsiya)\s*:?\s*/i, '').length > 1;
       })[0];
-      var dnUz = dUz ? clean(dUz).replace(/^(Rayon|Manzil|Lokatsiya)\s*:?\s*/i, '').replace(/\([^)]*\)/g, '').trim() : '';
+      var dnUz = dUz ? cleanDistrict(clean(dUz).replace(/^(Rayon|Manzil|Lokatsiya)\s*:?\s*/i, '').replace(/\([^)]*\)/g, '').trim()) : '';
       res.districtName = { ru: dn, uz: dnUz };
       res.district = matchDistrict(dn, dnUz, districts);
       if (detail && !/^\d/.test(detail) && detail.length > 14 && /\s/.test(detail)) res.features.push({ ru: detail.charAt(0).toUpperCase() + detail.slice(1), uz: '' });
@@ -239,6 +239,15 @@
     if (title) { res.title.ru = title; mark('title'); }
     if (titleUz) res.title.uz = titleUz;
     return res;
+  }
+
+  /* «Район Сухман», «р-н Сухман», «Suhman tumani», «Rayon Suhman» → «Сухман» / «Suhman»:
+     иначе имя не совпадает со справочником и импорт заводит район-дубль */
+  function cleanDistrict(s) {
+    return String(s || '').trim()
+      .replace(/^(район|р-н\.?|микрорайон|rayon|tuman)\s+/i, '')
+      .replace(/\s+(tumani|tumanida|mahallasi|rayoni|district)$/i, '')
+      .trim();
   }
 
   function norm(s) {
@@ -284,6 +293,7 @@
   }
 
   parsePost.kind = kind;
+  parsePost.cleanDistrict = cleanDistrict;
   parsePost.matchDistrict = matchDistrict;
   root.parsePost = parsePost;
   if (typeof module !== 'undefined' && module.exports) module.exports = parsePost;

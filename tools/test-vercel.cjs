@@ -589,6 +589,25 @@ function check(name, cond, info) {
     r701.photos.length === 3 && sent.some(x => /Нет карточек с постами: №999/.test(x.text || '')) && sent.some(x => /№701 — фото 3/.test(x.text || '')),
     r701.photos.length + ' фото · ' + sent.map(x => (x.text || '').slice(0, 40)).join(' | '));
 
+  /* ---- район-дубль «Район Сухман / Suhman tumani»: парсер чистит имя, база объединяет дубли ---- */
+  const ppFull = require(path.join(ROOT, 'assets', 'js', 'parse-post.js'));
+  const dCat = (await call('/api/catalog')).data.districts;
+  const p424 = ppFull('🏠 Евродвушка / Медина\n📍 Локация: Район Сухман\n🇺🇿\n🏠 Kvartira\n📍 Lokatsiya: Suhman tumani', dCat);
+  check('парсер: «Локация: Район Сухман» → район Сухман из справочника, без дубля', p424.district === 'suhman', JSON.stringify(p424.districtName) + ' → ' + p424.district);
+  const D7 = (await pool.query("select data from docs where key = 'districts'")).rows[0].data;
+  D7['suhman-tumani'] = { ru: 'Район Сухман', uz: 'Suhman tumani', en: '' };
+  D7['qurbon'] = { ru: 'Курбан', uz: 'Qurbon', en: '' };
+  await pool.query("update docs set data = $1::jsonb where key = 'districts'", [JSON.stringify(D7)]);
+  const L7 = (await pool.query("select data from docs where key = 'listings'")).rows[0].data;
+  L7.push(Object.assign({}, L7.find(a => a.status === 'free'), { id: 'apt-dup424', post: 'https://t.me/madinah_rent/424', district: 'suhman-tumani' }));
+  await pool.query("update docs set data = $1::jsonb where key = 'listings'", [JSON.stringify(L7)]);
+  app = freshApp();
+  const c7 = await call('/api/catalog');
+  const a424 = c7.data.apartments.find(a => a.id === 'apt-dup424');
+  check('район-дубль объединён с «Сухман», а настоящий новый район (Курбан) остался',
+    !c7.data.districts['suhman-tumani'] && a424 && a424.district === 'suhman' && !!c7.data.districts.qurbon,
+    (a424 && a424.district) + ' · дубль ' + (c7.data.districts['suhman-tumani'] ? 'остался' : 'убран'));
+
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
     pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&
