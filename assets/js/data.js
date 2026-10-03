@@ -29,7 +29,7 @@ window.DATA = {
   /* --- Контакты. У сестёр отдельный ник: заявки и вопросы идут туда ----- */
   contacts: {
     brothers: { tg: 'RakhimovAbdullah', phone: '+966506672436', wa: '966506672436' },
-    sisters:  { tg: 'AmdinMadinahGR',   phone: '',              wa: '' },
+    sisters:  { tg: 'MADINAHGRP',       phone: '',              wa: '' },
     instagram: '',
     hours: {
       ru: 'Работаем круглосуточно, без выходных',

@@ -608,6 +608,23 @@ function check(name, cond, info) {
     !c7.data.districts['suhman-tumani'] && a424 && a424.district === 'suhman' && !!c7.data.districts.qurbon,
     (a424 && a424.district) + ' · дубль ' + (c7.data.districts['suhman-tumani'] ? 'остался' : 'убран'));
 
+  /* ---- контакт сестёр: старый ник в базе заменяется один раз, дальше — как поставит Абдуллах ---- */
+  const C8 = (await pool.query("select data from docs where key = 'content'")).rows[0].data;
+  C8.contacts.sisters.tg = 'AmdinMadinahGR';
+  await pool.query("update docs set data = $1::jsonb where key = 'content'", [JSON.stringify(C8)]);
+  const ST8 = (await pool.query("select data from docs where key = 'settings'")).rows[0].data;
+  delete ST8.sistersTg20261003;
+  await pool.query("update docs set data = $1::jsonb where key = 'settings'", [JSON.stringify(ST8)]);
+  app = freshApp();
+  const sis1 = (await call('/api/catalog')).data.content.contacts.sisters.tg;
+  const C9 = (await pool.query("select data from docs where key = 'content'")).rows[0].data;
+  C9.contacts.sisters.tg = 'AmdinMadinahGR';                       // Абдуллах сам вернул старый — уважаем
+  await pool.query("update docs set data = $1::jsonb where key = 'content'", [JSON.stringify(C9)]);
+  app = freshApp();
+  const sis2 = (await call('/api/catalog')).data.content.contacts.sisters.tg;
+  check('контакт сестёр: @AmdinMadinahGR → @MADINAHGRP один раз, правку из панели потом не трогает',
+    sis1 === 'MADINAHGRP' && sis2 === 'AmdinMadinahGR', sis1 + ' → ' + sis2);
+
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
     pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&
