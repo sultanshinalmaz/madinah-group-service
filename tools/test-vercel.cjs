@@ -527,18 +527,23 @@ function check(name, cond, info) {
 
   /* ---- /refresh: бот сам пересылает себе посты канала и дотягивает медиа, обложки и районы ---- */
   const CH = {                                    // «канал»: что вернёт forwardMessage по номеру поста
-    701: { media_group_id: 'G701', caption: '🏠 2-комнатная квартира / Медина\n💰 2 500 риал в месяц\n📍 Район: Аль Фатх',
+    701: { date0: 1000, caption: '🏠 2-комнатная квартира / Медина\n💰 2 500 риал в месяц\n📍 Район: Аль Фатх',
       photo: [{ file_id: 'r701s', file_size: 900 }, { file_id: 'r701', file_size: 90000 }] },
-    702: { media_group_id: 'G701', photo: [{ file_id: 'r702', file_size: 91000 }] },
-    703: { media_group_id: 'G703', caption: 'другой пост', photo: [{ file_id: 'r703', file_size: 92000 }] },
-    705: { caption: '🏠 1-комнатная квартира', video: { file_id: 'r705', file_size: 5 * 1048576, thumbnail: { file_id: 'r705th', file_size: 7000 } } },
-    709: { caption: '🏠 Евротрёшка / Медина\n📍 https://maps.app.goo.gl/TestPin123',
+    702: { date0: 1000, photo: [{ file_id: 'r702', file_size: 91000 }] },
+    703: { date0: 1000, photo: [{ file_id: 'r703', file_size: 92000 }] },
+    704: { date0: 2000, photo: [{ file_id: 'r704', file_size: 92000 }] },
+    705: { date0: 3000, caption: '🏠 1-комнатная квартира', video: { file_id: 'r705', file_size: 5 * 1048576, thumbnail: { file_id: 'r705th', file_size: 7000 } } },
+    709: { date0: 4000, caption: '🏠 Евротрёшка / Медина\n📍 https://maps.app.goo.gl/TestPin123',
       video: { file_id: 'r709', file_size: 30 * 1048576, thumbnail: { file_id: 'r709th', file_size: 7000 } } }
   };
-  tgReply.forwardMessage = p => CH[p.message_id]
-    ? { ok: true, result: Object.assign({ message_id: 90000 + p.message_id, chat: { id: p.chat_id, type: 'private' }, date: 1,
-        forward_origin: { type: 'channel', chat: { username: 'madinah_rent' }, message_id: p.message_id } }, CH[p.message_id]) }
-    : { ok: false, description: 'Bad Request: message to forward not found' };
+  // как в жизни: у копии, пересланной по одной, нет media_group_id; дата исходного поста — в forward_origin
+  tgReply.forwardMessage = p => {
+    const src = CH[p.message_id];
+    if (!src) return { ok: false, description: 'Bad Request: message to forward not found' };
+    const copy = Object.assign({}, src); delete copy.date0;
+    return { ok: true, result: Object.assign({ message_id: 90000 + p.message_id, chat: { id: p.chat_id, type: 'private' }, date: 5000,
+      forward_origin: { type: 'channel', chat: { username: 'madinah_rent' }, message_id: p.message_id, date: src.date0 } }, copy) };
+  };
   tgReply.deleteMessage = { ok: true, result: true };
   const L5 = (await pool.query("select data from docs where key = 'listings'")).rows[0].data;
   const blank = (id, post, extra) => Object.assign({ id, title: { ru: 'Квартира ' + id }, post: 'https://t.me/madinah_rent/' + post, status: 'free', district: '',
@@ -553,8 +558,8 @@ function check(name, cond, info) {
     from: { id: ADMIN, first_name: 'Abdullah', language_code: 'ru' }, date: 1, text: '/refresh' }) });
   const after5 = (await pool.query("select data from docs where key = 'listings'")).rows[0].data;
   const g = id => after5.find(a => a.id === id);
-  check('/refresh: альбом из канала вернулся (2 фото, соседний пост не прихвачен), район из текста',
-    rf.status === 200 && g('apt-r701').photos.length === 2 && g('apt-r701').district === 'fath', JSON.stringify({ ph: g('apt-r701').photos.length, d: g('apt-r701').district }));
+  check('/refresh: альбом из канала вернулся целиком (3 фото по дате поста, соседний пост не прихвачен), район из текста',
+    rf.status === 200 && g('apt-r701').photos.length === 3 && g('apt-r701').district === 'fath', JSON.stringify({ ph: g('apt-r701').photos.length, d: g('apt-r701').district }));
   check('/refresh: видео без обложки получило обложку, сам ролик не перекачивался',
     /-cover\.jpg$/.test(g('apt-r705').videos[0].poster) && /tg-old705\.mp4$/.test(g('apt-r705').videos[0].src) && !tgCalls.some(c => c.method === 'getFile' && c.payload.file_id === 'r705'),
     JSON.stringify(g('apt-r705').videos[0]));
@@ -572,6 +577,17 @@ function check(name, cond, info) {
   await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: upd({ message_id: 9102, chat: { id: 111222333, type: 'private' },
     from: { id: 111222333, first_name: 'Гость', language_code: 'ru' }, date: 1, text: '/refresh' }) });
   check('/refresh от обычного пользователя ничего не трогает', !tgCalls.some(c => c.method === 'forwardMessage'));
+  // «/refresh 701 999» — пост заново, даже если медиа уже есть; про несуществующий — честно
+  const L6 = (await pool.query("select data from docs where key = 'listings'")).rows[0].data;
+  L6.forEach(a => { if (a.id === 'apt-r701') a.photos = a.photos.slice(0, 1); });   // как у №416 после первого прохода
+  await pool.query("update docs set data = $1::jsonb where key = 'listings'", [JSON.stringify(L6)]);
+  app = freshApp(); sent.length = 0;
+  await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: upd({ message_id: 9103, chat: { id: ADMIN, type: 'private' },
+    from: { id: ADMIN, first_name: 'Abdullah', language_code: 'ru' }, date: 1, text: '/refresh 701 999' }) });
+  const r701 = (await pool.query("select data from docs where key = 'listings'")).rows[0].data.find(a => a.id === 'apt-r701');
+  check('/refresh 701: заново взял весь альбом, про №999 сказал, что такой карточки нет',
+    r701.photos.length === 3 && sent.some(x => /Нет карточек с постами: №999/.test(x.text || '')) && sent.some(x => /№701 — фото 3/.test(x.text || '')),
+    r701.photos.length + ' фото · ' + sent.map(x => (x.text || '').slice(0, 40)).join(' | '));
 
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
