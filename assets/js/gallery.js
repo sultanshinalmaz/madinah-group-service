@@ -37,6 +37,18 @@
     return list;
   }
 
+  /* обложка от Telegram (…-cover.jpg) маленькая, 320 px — размытым фоном и целиком по центру;
+     обложки нет (видео из канала, кадр на Vercel не вырезать) — первый кадр самого ролика */
+  var SMALL_POSTER = /-cover(-m)?\.(jpe?g|webp|png)$/i;
+  function posterHTML(it) {
+    if (!it.poster) {
+      return it.src ? '<video class="gal-frame" src="' + it.src + '#t=0.5" preload="metadata" muted playsinline disablepictureinpicture tabindex="-1"></video>' : '';
+    }
+    var img = '<img src="' + it.poster + '" alt="" loading="lazy" decoding="async" draggable="false">';
+    return SMALL_POSTER.test(it.poster) ? img.replace('<img ', '<img class="gal-tg-bg" aria-hidden="true" ') + img : img;
+  }
+  function videoClass(it) { return !it.poster ? ' no-poster' : SMALL_POSTER.test(it.poster) ? ' is-small' : ''; }
+
   function imgTag(it, i, big) {
     var src = big ? it.full : it.card;
     return '<img src="' + src + '" data-full="' + it.full + '" alt="" draggable="false" ' +
@@ -55,8 +67,8 @@
       '</div>';
     }
     if (it.type === 'video') {
-      return '<div class="gal-slide is-video" data-lb-open="' + i + '">' +
-        '<img src="' + it.poster + '" alt="" loading="lazy" decoding="async" draggable="false">' +
+      return '<div class="gal-slide is-video' + videoClass(it) + '" data-lb-open="' + i + '">' +
+        posterHTML(it) +
         '<span class="gal-play">' + PLAY + '</span>' +
         '<span class="gal-vlabel">' + MR.t('videoTour') + '</span>' +
       '</div>';
@@ -86,7 +98,7 @@
     if (list.length < 2) return '';
     return '<div class="gal-thumbs" data-thumbs="' + ap.id + '">' + list.map(function (it, i) {
       return '<button class="gal-thumb' + (i ? '' : ' is-on') + (it.type === 'video' ? ' is-video' : '') + '" data-gal-go="' + i + '" aria-label="' + (i + 1) + '">' +
-        '<img src="' + (it.type === 'video' ? it.poster : it.card) + '" alt="" loading="lazy" decoding="async" draggable="false">' +
+        ((it.type === 'video' ? it.poster : it.card) ? '<img src="' + (it.type === 'video' ? it.poster : it.card) + '" alt="" loading="lazy" decoding="async" draggable="false">' : '') +
         (it.type === 'video' ? '<span>' + PLAY + '</span>' : '') +
       '</button>';
     }).join('') + '</div>';
@@ -305,7 +317,7 @@
     }).join('');
     lb.querySelector('.lb-thumbs').innerHTML = lbItems.length > 1 ? lbItems.map(function (it, i) {
       return '<button class="lb-thumb' + (it.type === 'video' ? ' is-video' : '') + '" data-i="' + i + '">' +
-        '<img src="' + (it.type === 'video' ? it.poster : it.card) + '" alt="" loading="lazy" draggable="false">' +
+        ((it.type === 'video' ? it.poster : it.card) ? '<img src="' + (it.type === 'video' ? it.poster : it.card) + '" alt="" loading="lazy" draggable="false">' : '') +
         (it.type === 'video' ? '<span>' + PLAY + '</span>' : '') + '</button>';
     }).join('') : '';
     lb.hidden = false;

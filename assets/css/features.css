@@ -31,9 +31,11 @@
 .gal-slide.is-video { cursor: pointer; }
 .gal-slide.is-video img { filter: brightness(.78); }
 /* видео больше 20 МБ: обложка от Telegram 320 px — размытым фоном, целиком по центру; смотрят в Telegram */
-.gal-slide.is-tg { overflow: hidden; background: #0f2a20; }
-.gal-slide.is-tg img { position: relative; object-fit: contain; }
-.gal-slide.is-tg .gal-tg-bg { position: absolute; inset: 0; object-fit: cover; filter: blur(18px) brightness(.55); transform: scale(1.2); }
+.gal-slide.is-tg, .gal-slide.is-small, .gal-slide.no-poster { overflow: hidden; background: #0f2a20; }
+.gal-slide.is-tg img, .gal-slide.is-small img { position: relative; object-fit: contain; }
+.gal-slide.is-tg .gal-tg-bg, .gal-slide.is-small .gal-tg-bg { position: absolute; inset: 0; object-fit: cover; filter: blur(18px) brightness(.55); transform: scale(1.2); }
+.gal-frame { width: 100%; height: 100%; object-fit: cover; display: block; pointer-events: none; filter: brightness(.8); }
+.gal-thumb.is-video, .lb-thumb.is-video { background: #0f2a20; }
 
 .gal-play {
   position: absolute;

@@ -450,6 +450,80 @@ function check(name, cond, info) {
     pin.status === 200 && !afterPin.data.apartments.some(a => /madinah_rent\/793$/.test(a.post || '')) && !sent.length,
     sent.length ? sent[0].text.slice(0, 50) : '');
 
+  /* ---- обычное видео из канала: обложка — миниатюра от Telegram, а не пустота ---- */
+  app = freshApp();
+  await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: JSON.stringify({ update_id: 963001, channel_post: {
+    message_id: 795, chat: chan, date: Math.floor(Date.now() / 1000), caption: '🏠 1-комнатная квартира / Медина\n💰 1 800 риал в месяц',
+    video: { file_id: 'vid795', file_size: 6 * 1048576, duration: 40, thumbnail: { file_id: 'vid795thumb', file_size: 8000, width: 320, height: 180 } } } }) });
+  const v795 = ((await call('/api/catalog')).data.apartments.find(a => a.post === 'https://t.me/madinah_rent/795') || { videos: [] }).videos[0];
+  check('видео из канала до 20 МБ — в облаке, обложка — миниатюра от Telegram',
+    !!v795 && /public\.blob\.vercel-storage\.com\/media\/tg-[a-f0-9]+\.mp4$/.test(v795.src) && /-cover\.jpg$/.test(v795.poster), v795 ? JSON.stringify(v795) : 'нет');
+
+  /* ---- истёкшие брони: квартира и машина снова свободны ---- */
+  const pool = new pgStub.Pool();
+  const L2 = (await pool.query("select data from docs where key = 'listings'")).rows[0].data;
+  const pubId = L2.find(a => a.status === 'free').id;
+  L2.forEach(a => { if (a.id === pubId) { a.status = 'booked'; a.bookedUntil = '2020-01-01'; } });
+  await pool.query("update docs set data = $1::jsonb where key = 'listings'", [JSON.stringify(L2)]);
+  const S2 = (await pool.query("select data from docs where key = 'services'")).rows[0].data;
+  const carId = S2.cars.items[0].id;
+  S2.cars.items[0].status = 'booked'; S2.cars.items[0].bookedUntil = '2020-01-01';
+  await pool.query("update docs set data = $1::jsonb where key = 'services'", [JSON.stringify(S2)]);
+  app = freshApp();
+  const exp = await call('/api/catalog');
+  const expAp = exp.data.apartments.find(a => a.id === pubId), expCar = exp.data.services.cars.items.find(c => c.id === carId);
+  check('бронь «до» прошедшей даты — квартира и машина снова свободны',
+    expAp && expAp.status === 'free' && !expAp.bookedUntil && expCar && expCar.status === 'free',
+    (expAp && expAp.status) + ' / ' + (expCar && expCar.status));
+
+  /* ---- кэш CDN: публичный каталог и ревизия — да, панель — нет ---- */
+  const cc = (await call('/api/catalog')).headers.get('cache-control') || '';
+  const cr = (await call('/api/rev')).headers.get('cache-control') || '';
+  const ca = (await call('/api/admin/catalog', { headers: asAdmin() })).headers.get('cache-control') || '';
+  check('CDN держит каталог и ревизию несколько секунд, панель не кэшируется',
+    /s-maxage=\d+/.test(cc) && /s-maxage=\d+/.test(cr) && ca === 'no-store', cc + ' | ' + cr + ' | ' + ca);
+
+  /* ---- разовая уборка: машина и пустая «Новая квартира» от старого импорта — в черновики ---- */
+  const L3 = (await pool.query("select data from docs where key = 'listings'")).rows[0].data;
+  const junkPrice = { month: null, day: null, year: null, deposit: 0, agentFee: 0 };
+  L3.push({ id: 'apt-car428', title: { ru: 'СДАЁТСЯ В АРЕНДУ: Lincoln MKX (2016)' }, post: 'https://t.me/madinah_rent/428', status: 'free',
+    district: 'avtomobil-nahoditsya-v-medine', photos: [], videos: [], price: junkPrice, updated: '2026-10-02' });
+  L3.push({ id: 'apt-empty431', title: { ru: 'Новая квартира' }, post: 'https://t.me/madinah_rent/431', status: 'free',
+    district: '', photos: [], videos: [], price: junkPrice, updated: '2026-10-02' });
+  await pool.query("update docs set data = $1::jsonb where key = 'listings'", [JSON.stringify(L3)]);
+  const D3 = (await pool.query("select data from docs where key = 'districts'")).rows[0].data;
+  D3['avtomobil-nahoditsya-v-medine'] = { ru: 'автомобиль находится в Медине.', uz: '', en: '' };
+  await pool.query("update docs set data = $1::jsonb where key = 'districts'", [JSON.stringify(D3)]);
+  const ST3 = (await pool.query("select data from docs where key = 'settings'")).rows[0].data;
+  delete ST3.cleanup20261003;
+  await pool.query("update docs set data = $1::jsonb where key = 'settings'", [JSON.stringify(ST3)]);
+  const realBefore = (await call('/api/catalog')).data.apartments.length;
+  app = freshApp();
+  const cl = await call('/api/catalog');
+  check('уборка: машина и пустая карточка скрыты, мусорный район убран, настоящие квартиры на месте',
+    !cl.data.apartments.some(a => a.id === 'apt-car428' || a.id === 'apt-empty431') && !cl.data.districts['avtomobil-nahoditsya-v-medine'] &&
+    cl.data.apartments.length === realBefore, 'квартир ' + cl.data.apartments.length + ' (было ' + realBefore + ')');
+  const L4 = (await pool.query("select data from docs where key = 'listings'")).rows[0].data;
+  L4.forEach(a => { if (a.id === 'apt-car428') a.status = 'free'; });   // Абдуллах вернул карточку сам
+  await pool.query("update docs set data = $1::jsonb where key = 'listings'", [JSON.stringify(L4)]);
+  app = freshApp();
+  check('уборка разовая: возвращённую Абдуллахом карточку больше не прячет',
+    (await call('/api/catalog')).data.apartments.some(a => a.id === 'apt-car428'));
+
+  /* ---- две брони в одну секунду из разных экземпляров функции — обе сохранены.
+     Экземпляр только что прочитал базу (держит её секунду), другой тем временем записал свою бронь;
+     раньше первый переписал бы весь список своей копией, и чужая бронь пропала бы. ---- */
+  await call('/api/catalog');                                   // экземпляр прочитал базу
+  const bk0 = (await pool.query("select data from docs where key = 'bookings'")).rows[0].data;
+  bk0.push({ id: 'b-other-instance', at: new Date().toISOString(), status: 'new', apartment: saved.data.apartment.id, name: 'Из другого экземпляра' });
+  await pool.query("update docs set data = $1::jsonb where key = 'bookings'", [JSON.stringify(bk0)]);
+  const p1 = await call('/api/booking', { method: 'POST', headers: jsonHdr(asUser()),
+    body: JSON.stringify({ apartment: saved.data.apartment.id, name: 'Параллель', phone: '+998900000000', who: 'family', people: 2, lang: 'ru' }) });
+  const after = (await pool.query("select data from docs where key = 'bookings'")).rows[0].data;
+  check('одновременные брони из двух экземпляров не затирают друг друга',
+    p1.status === 200 && after.some(b => b.id === 'b-other-instance') && after.some(b => b.name === 'Параллель'),
+    'в базе: ' + after.slice(-2).map(b => b.name).join(', '));
+
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
     pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&

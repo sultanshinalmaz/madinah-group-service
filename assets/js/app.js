@@ -64,10 +64,14 @@
   }
 
   function normalize(list) {
+    var today = new Date(Date.now() + 3 * 3600000).toISOString().slice(0, 10);   // время Медины
     return (list || []).map(function (ap) {
       ap = Object.assign({}, ap);
       if (ap.status === 'soon') ap.status = 'busy';
       if (!STATUS_RANK.hasOwnProperty(ap.status)) ap.status = 'free';
+      // «забронирована до 26.09» после 26.09 уже свободна (сервер делает то же)
+      if (ap.status === 'booked' && ap.bookedUntil && ap.bookedUntil < today) { ap.status = 'free'; ap.bookedUntil = ''; }
+      if (ap.status === 'busy' && ap.busyUntil && ap.busyUntil < today) { ap.status = 'free'; ap.busyUntil = ''; }
       ap.photos = ap.photos || [];
       ap.videos = ap.videos || [];
       ap.includes = ap.includes || [];
@@ -354,6 +358,9 @@
     });
   }
 
+  /* в ленте по умолчанию первыми идут карточки с фото, затем с видео, затем без медиа */
+  function mediaRank(ap) { return ap.photos.length ? 0 : ap.videos.length ? 1 : 2; }
+
   function applyFilters() {
     var f = state.filters;
     var list = visible().filter(function (ap) {
@@ -370,7 +377,7 @@
     });
     var by = f.sort === 'cheap' ? function (a, b) { return priceOf(a) - priceOf(b); }
            : f.sort === 'near' ? function (a, b) { return haramMeters(a) - haramMeters(b); }
-           : function (a, b) { return (b.updated || '').localeCompare(a.updated || ''); };
+           : function (a, b) { return (mediaRank(a) - mediaRank(b)) || (b.updated || '').localeCompare(a.updated || ''); };
     // свободные всегда первыми, забронированные и занятые — ниже, но их видно
     list.sort(function (a, b) { return (STATUS_RANK[a.status] - STATUS_RANK[b.status]) || ((b.pin ? 1 : 0) - (a.pin ? 1 : 0)) || by(a, b); });
     return list;
@@ -415,11 +422,11 @@
             (alt.length ? '<span class="card-price-alt num">' + alt.join(' · ') + '</span>' : '') +
           '</div>' +
           '<div class="card-title">' + esc(L(ap.title)) + '</div>' +
-          '<div class="card-where">' + ICON.pin + esc(L(d)) + '</div>' +
+          (L(d) ? '<div class="card-where">' + ICON.pin + esc(L(d)) + '</div>' : '') +
           '<div class="metrics">' +
             '<span class="metric">' + ICON.bed + word('roomForms', ap.rooms || 1) + '</span>' +
             '<span class="metric">' + ICON.bath + word('bathForms', ap.baths || 1) + '</span>' +
-            (ap.walk && ap.walk.haram ? '<span class="metric accent">' + ICON.walk + t('toHaram') + ' ' + esc(L(ap.walk.haram)) + '</span>' : '') +
+            (ap.walk && L(ap.walk.haram) ? '<span class="metric accent">' + ICON.walk + t('toHaram') + ' ' + esc(L(ap.walk.haram)) + '</span>' : '') +
             (!ap.terms.iqama ? '<span class="metric">' + t('iqamaNo') + '</span>' : '') +
           '</div>' +
           (state.isAdmin && (ap.status === 'draft' || ap.status === 'rented') ? '<div class="card-admin-note">' + t('adminHiddenNote') + '</div>' : '') +
@@ -522,8 +529,8 @@
           '<div class="det-price num"><b>' + priceMain(ap, false) + '</b>' +
             (alt.length ? '<span>' + alt.join(' · ') + '</span>' : '') + '</div>' +
           '<h2 style="margin-top:6px;font-size:19px">' + esc(L(ap.title)) + '</h2>' +
-          '<div class="card-where" style="margin-top:7px">' + ICON.pin + esc(L(d)) +
-            (d.haram ? ' · ' + t('toHaram') + ' ' + esc(L(d.haram)) : '') + '</div>' +
+          (L(d) ? '<div class="card-where" style="margin-top:7px">' + ICON.pin + esc(L(d)) +
+            (L(d.haram) ? ' · ' + t('toHaram') + ' ' + esc(L(d.haram)) : '') + '</div>' : '') +
           (ap.walk && ap.walk.other ? '<div class="card-where">' + ICON.walk + esc(L(ap.walk.other)) + '</div>' : '') +
         '</div>' +
         holdNote +
@@ -532,15 +539,16 @@
         (feats ? '<div class="block"><h3>' + t('features') + '</h3><div class="rows">' + feats + '</div></div>' : '') +
         (includes ? '<div class="block"><h3>' + t('included') + '</h3><div class="rows">' + includes + '</div></div>' : '') +
         (extra ? '<div class="block"><h3>' + t('extraPay') + '</h3><div class="rows">' + extra + '</div></div>' : '') +
-        '<div class="block"><h3>' + t('calc') + '</h3>' +
+        // без цены расчёт не показываем (было «0 риал»); комиссия видна всегда — по условиям она есть у каждой квартиры
+        (first ? '<div class="block"><h3>' + t('calc') + '</h3>' +
           '<div class="calc num">' +
             '<div class="calc-row"><span>' + t('calcRent') + '</span><b>' + money(first) + ' ' + t('riyal') + '</b></div>' +
             (ap.price.deposit ? '<div class="calc-row"><span>' + t('calcDeposit') + '</span><b>' + money(ap.price.deposit) + ' ' + t('riyal') + '</b></div>' : '') +
-            (ap.price.agentFee ? '<div class="calc-row"><span>' + t('calcAgent') + '</span><b>' + money(ap.price.agentFee) + ' ' + t('riyal') + '</b></div>' : '') +
-            '<div class="calc-row calc-total"><span>' + t('calcTotal') + '</span><b>' + money(total) + ' ' + t('riyal') + '</b></div>' +
+            '<div class="calc-row"><span>' + t('calcAgent') + '</span><b>' + (ap.price.agentFee ? money(ap.price.agentFee) + ' ' + t('riyal') : t('calcAgentAsk')) + '</b></div>' +
+            '<div class="calc-row calc-total"><span>' + t('calcTotal') + '</span><b>' + money(total) + ' ' + t('riyal') + (ap.price.agentFee ? '' : ' ' + t('calcPlusFee')) + '</b></div>' +
             '<div class="calc-note">' + t('calcNote') + '</div>' +
           '</div>' +
-        '</div>' +
+        '</div>' : '') +
         '<div style="display:flex;justify-content:space-between;color:var(--ink-3);font-size:12.5px">' +
           '<span>' + t('codeLabel') + ': ' + esc(ap.code || '—') + '</span>' +
           '<span>' + t('updated') + ' ' + freshness(ap.updated) + '</span>' +
@@ -946,7 +954,7 @@
       return '<div class="dist-card" data-dist-go="' + k + '">' +
         '<div><div class="n">' + esc(L(d)) + '</div>' +
           '<div class="d">' + esc(L(d.note)) + '</div>' +
-          '<div class="d" style="color:var(--green);margin-top:4px">' + t('toHaram') + ' ' + esc(L(d.haram)) + '</div>' +
+          (L(d.haram) ? '<div class="d" style="color:var(--green);margin-top:4px">' + t('toHaram') + ' ' + esc(L(d.haram)) + '</div>' : '') +
         '</div>' +
         '<div class="cnt-b"><b class="num">' + counts[k] + '</b><span>' + nForm(counts[k], t('aptForms')) + '</span></div>' +
       '</div>';
