@@ -233,6 +233,22 @@
   cursor: pointer;
 }
 .lb-tg svg { width: 22px; height: 22px; flex: none; }
+
+/* пауза для администратора (APP_PAUSE): баннер поверх всего приложения, без кнопки «закрыть» */
+.pause-wall {
+  position: fixed; inset: 0; z-index: 2147483000;
+  display: grid; place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
+  background: radial-gradient(120% 90% at 50% 0%, #1b7a5d 0%, var(--green, #0f5c47) 45%, #0b2a20 100%);
+  color: #fff; text-align: center;
+}
+.pause-card { max-width: 340px; }
+.pause-emblem {
+  width: 104px; height: 104px; border-radius: 50%; object-fit: cover; display: block; margin: 0 auto;
+  box-shadow: 0 0 0 3px var(--brass, #b48b2f), 0 0 0 9px rgba(255, 255, 255, .1);
+}
+.pause-card h2 { margin: 22px 0 10px; font-size: 22px; line-height: 1.25; }
+.pause-card p { margin: 0; font-size: 16.5px; line-height: 1.55; color: rgba(255, 255, 255, .9); }
 .lb-slide.is-zoom { overflow: auto; display: block; cursor: zoom-out; }
 .lb-slide.is-zoom img { max-width: none; max-height: none; width: 250%; }
 .lb-arrow {

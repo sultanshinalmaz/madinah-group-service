@@ -625,6 +625,21 @@ function check(name, cond, info) {
   check('контакт сестёр: @AmdinMadinahGR → @MADINAHGRP один раз, правку из панели потом не трогает',
     sis1 === 'MADINAHGRP' && sis2 === 'AmdinMadinahGR', sis1 + ' → ' + sis2);
 
+  /* ---- пауза для Абдуллаха (APP_PAUSE=admin): у админа баннер, клиенты — как обычно ---- */
+  process.env.APP_PAUSE = 'admin';
+  app = freshApp();
+  const pzA = await call('/api/me', { method: 'POST', headers: jsonHdr(asAdmin()), body: '{}' });
+  const pzU = await call('/api/me', { method: 'POST', headers: jsonHdr(asUser()), body: '{}' });
+  const pzCat = await call('/api/catalog');
+  const pzH = await call('/api/health');
+  delete process.env.APP_PAUSE;
+  app = freshApp();
+  const pzA2 = await call('/api/me', { method: 'POST', headers: jsonHdr(asAdmin()), body: '{}' });
+  check('пауза APP_PAUSE: админу — баннер, клиенту — нет, каталог работает; без переменной паузы нет',
+    pzA.data.admin === true && pzA.data.pause === true && !pzU.data.pause && pzCat.status === 200 && pzCat.data.apartments.length > 0 &&
+    pzH.data.pause === 'admin' && pzA2.data.admin === true && !pzA2.data.pause,
+    JSON.stringify({ admin: pzA.data.pause, user: !!pzU.data.pause, health: pzH.data.pause, after: !!pzA2.data.pause }));
+
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
     pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&
