@@ -640,6 +640,35 @@ function check(name, cond, info) {
     pzH.data.pause === 'admin' && pzA2.data.admin === true && !pzA2.data.pause,
     JSON.stringify({ admin: pzA.data.pause, user: !!pzU.data.pause, health: pzH.data.pause, after: !!pzA2.data.pause }));
 
+  /* ---- APP_PAUSE=admin,import: второй админ тоже под баннером; посты канала — в очередь, после паузы /refresh ---- */
+  process.env.APP_PAUSE = 'admin,import';
+  app = freshApp(); sent.length = 0;
+  const pzSecond = await call('/api/me', { method: 'POST', headers: jsonHdr({ 'X-Init-Data': signInit({ id: 8808659518, first_name: 'Admin2' }) }), body: '{}' });
+  check('пауза: второй админ (8808659518) тоже видит баннер', pzSecond.data.admin === true && pzSecond.data.pause === true, JSON.stringify(pzSecond.data));
+  await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: JSON.stringify({ update_id: 970001, channel_post: {
+    message_id: 801, chat: chan, date: Math.floor(Date.now() / 1000), caption: '🏠 2-комнатная квартира / Медина\n💰 2 600 риал в месяц\n📍 Район: Аль Фатх',
+    photo: [{ file_id: 'q801', file_size: 90000 }] } }) });
+  const q1 = (await pool.query("select data from docs where key = 'importQueue'")).rows[0];
+  const inCat1 = (await call('/api/catalog')).data.apartments.some(a => a.post === 'https://t.me/madinah_rent/801');
+  await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: upd(post({ message_id: 9301, media_group_id: undefined,
+    forward_origin: { type: 'channel', chat: { username: 'madinah_rent', title: 'Канал' }, message_id: 802 } })) });
+  await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: upd({ message_id: 9302, chat: { id: ADMIN, type: 'private' },
+    from: { id: ADMIN, first_name: 'Abdullah', language_code: 'ru' }, date: 1, text: '/refresh' }) });
+  const hp = (await call('/api/health')).data;
+  check('импорт на паузе: пост канала не стал карточкой, лёг в очередь; пересылка и /refresh отвечают «на паузе»',
+    !inCat1 && q1 && q1.data.length === 1 && q1.data[0].n === 801 && sent.filter(x => /сейчас на паузе/.test(x.text || '')).length === 2 &&
+    hp.pause === 'admin,import' && hp.importQueue === 1,
+    JSON.stringify({ inCat1, queue: q1 && q1.data.length, paused: sent.filter(x => /на паузе/.test(x.text || '')).length, health: hp.pause, q: hp.importQueue }));
+  delete process.env.APP_PAUSE;
+  app = freshApp(); sent.length = 0;
+  await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: upd({ message_id: 9303, chat: { id: ADMIN, type: 'private' },
+    from: { id: ADMIN, first_name: 'Abdullah', language_code: 'ru' }, date: 1, text: '/refresh' }) });
+  const after801 = (await call('/api/catalog')).data.apartments.find(a => a.post === 'https://t.me/madinah_rent/801');
+  const q2 = (await pool.query("select data from docs where key = 'importQueue'")).rows[0];
+  check('после паузы /refresh добавил отложенный пост (с фото и районом), очередь пуста',
+    !!after801 && after801.photos.length === 1 && after801.district === 'fath' && q2 && q2.data.length === 0 && sent.some(x => /время паузы, добавлены/.test(x.text || '')),
+    after801 ? (after801.title.ru + ' · фото ' + after801.photos.length + ' · ' + after801.district) : 'нет карточки');
+
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
     pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&
