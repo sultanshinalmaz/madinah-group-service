@@ -683,6 +683,19 @@ function check(name, cond, info) {
     blk.data.block === true && blkBk.status === 423 && blkRq.status === 423 && blkH === 'users' && !unblk.data.block,
     JSON.stringify({ block: blk.data.block, booking: blkBk.status, request: blkRq.status, health: blkH, after: !!unblk.data.block }));
 
+  /* ---- после паузы очередь добавляется сама при первом обновлении от Telegram (без /refresh) ---- */
+  await pool.query("insert into docs (key, data) values ('importQueue', $1::jsonb) on conflict (key) do update set data = excluded.data",
+    [JSON.stringify([{ id: 'p811', n: 811, at: 1, m: { message_id: 811, chat: chan, date: 1, caption: '🏠 1-комнатная квартира / Медина\n💰 1 900 риал в месяц',
+      photo: [{ file_id: 'q811', file_size: 90000 }] } }])]);
+  app = freshApp(); sent.length = 0;
+  await call('/api/webhook', { method: 'POST', headers: hdrWeb(), body: upd({ message_id: 9401, chat: { id: 111222333, type: 'private' },
+    from: { id: 111222333, first_name: 'Гость', language_code: 'ru' }, date: 1, text: 'Ассаламу алейкум' }) });
+  const auto811 = (await call('/api/catalog')).data.apartments.some(a => a.post === 'https://t.me/madinah_rent/811');
+  const q811 = (await pool.query("select data from docs where key = 'importQueue'")).rows[0].data;
+  check('после паузы очередь добавилась сама при первом сообщении боту, админам — уведомление',
+    auto811 && q811.length === 0 && sent.some(x => /время паузы, добавлены/.test(x.text || '') && x.chat === ADMIN),
+    JSON.stringify({ auto811, left: q811.length }));
+
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
     pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&
