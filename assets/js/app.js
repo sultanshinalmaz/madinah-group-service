@@ -185,6 +185,7 @@
       if (data.rev) state.rev = data.rev;
       if (data.content) applyContent(data.content);
       else renderAll();
+      if (data.block) showPause('users');              // блок для всех (APP_PAUSE=users на сервере)
     }).catch(function () { /* сеть пропала — показываем то, что есть */ });
   }
 
@@ -195,7 +196,7 @@
     return api.post('/api/me', {}).then(function (me) {
       state.me = me;
       // пауза для администратора: панель не грузим, поверх всего — баннер (клиентов это не касается)
-      if (me.admin && me.pause) { state.isAdmin = false; showPause(); return false; }
+      if (me.admin && me.pause) { state.isAdmin = false; showPause('admin'); return false; }
       state.isAdmin = !!me.admin;
       if (!state.isAdmin) return false;
       return loadScript('assets/js/admin.js').then(function () {
@@ -213,19 +214,24 @@
 
   /* Баннер паузы. Включается на сервере (APP_PAUSE) и приходит только администратору;
      закрыть его нельзя — снимается удалением переменной на Vercel. */
-  function showPause() {
-    if ($('#pauseWall')) return;
-    var el = document.createElement('div');
-    el.id = 'pauseWall';
-    el.className = 'pause-wall';
-    el.setAttribute('role', 'alertdialog');
-    el.setAttribute('aria-modal', 'true');
+  function showPause(kind) {
+    var el = $('#pauseWall');
+    if (el && (kind !== 'admin' || el.getAttribute('data-kind') === 'admin')) return;   // у админа — свой текст
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'pauseWall';
+      el.className = 'pause-wall';
+      el.setAttribute('role', 'alertdialog');
+      el.setAttribute('aria-modal', 'true');
+      document.body.appendChild(el);
+    }
+    el.setAttribute('data-kind', kind || 'admin');
     el.innerHTML = '<div class="pause-card">' +
       '<img class="pause-emblem" src="assets/img/emblem.webp" alt="">' +
-      '<h2>' + esc(t('pauseTitle')) + '</h2>' +
-      '<p>' + esc(t('pauseText')) + '</p>' +
+      (kind === 'users'
+        ? '<h2>' + esc(t('blockedTitle')) + '</h2>'
+        : '<h2>' + esc(t('pauseTitle')) + '</h2><p>' + esc(t('pauseText')) + '</p>') +
     '</div>';
-    document.body.appendChild(el);
     try { if (TG && TG.BackButton) TG.BackButton.hide(); } catch (e) {}
   }
 

@@ -669,6 +669,20 @@ function check(name, cond, info) {
     !!after801 && after801.photos.length === 1 && after801.district === 'fath' && q2 && q2.data.length === 0 && sent.some(x => /время паузы, добавлены/.test(x.text || '')),
     after801 ? (after801.title.ru + ' · фото ' + after801.photos.length + ' · ' + after801.district) : 'нет карточки');
 
+  /* ---- APP_PAUSE=users: блок для всех — признак в каталоге, заявки не принимаются; без переменной — как обычно ---- */
+  process.env.APP_PAUSE = 'users';
+  app = freshApp();
+  const blk = await call('/api/catalog');
+  const blkBk = await call('/api/booking', { method: 'POST', headers: jsonHdr(asUser()), body: JSON.stringify({ apartment: blk.data.apartments[0].id, name: 'Тест', phone: '+998900000001', who: 'family', people: 2, lang: 'ru' }) });
+  const blkRq = await call('/api/request', { method: 'POST', headers: jsonHdr(asUser()), body: JSON.stringify({ kind: 'tour', name: 'Тест', phone: '+998900000001', lang: 'ru' }) });
+  const blkH = (await call('/api/health')).data.pause;
+  delete process.env.APP_PAUSE;
+  app = freshApp();
+  const unblk = await call('/api/catalog');
+  check('блок для всех: каталог с признаком, бронь и заявка → 423; без переменной блока нет',
+    blk.data.block === true && blkBk.status === 423 && blkRq.status === 423 && blkH === 'users' && !unblk.data.block,
+    JSON.stringify({ block: blk.data.block, booking: blkBk.status, request: blkRq.status, health: blkH, after: !!unblk.data.block }));
+
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
     pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&
