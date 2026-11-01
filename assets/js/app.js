@@ -197,6 +197,7 @@
       state.me = me;
       // пауза для администратора: панель не грузим, поверх всего — баннер (клиентов это не касается)
       if (me.admin && me.pause) { state.isAdmin = false; showPause('admin'); return false; }
+      if (me.admin && me.notice) showAyah(me.notice);  // аят поверх приложения, панель работает
       state.isAdmin = !!me.admin;
       if (!state.isAdmin) return false;
       return loadScript('assets/js/admin.js').then(function () {
@@ -233,6 +234,37 @@
         : '<h2>' + esc(t('pauseTitle')) + '</h2><p>' + esc(t('pauseText')) + '</p>') +
     '</div>';
     try { if (TG && TG.BackButton) TG.BackButton.hide(); } catch (e) {}
+  }
+
+  /* Аят для администратора (ADMIN_NOTICE на сервере, с заданного времени): сура «аль-Маариж», 70:32.
+     notice.lock — без кнопки «Продолжить». Убирается выключением переменной на Vercel. */
+  function showAyah(notice) {
+    if ($('#ayahWall')) return;
+    if (!document.getElementById('ayahFont')) {
+      var link = document.createElement('link');
+      link.id = 'ayahFont'; link.rel = 'stylesheet';
+      link.href = 'https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap';
+      document.head.appendChild(link);
+    }
+    // восьмиконечная звезда (руб аль-хизб) — тот же мотив, что в заставке и в PDF условий
+    var star = '<svg viewBox="0 0 24 24" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="1.2">' +
+      '<rect x="5" y="5" width="14" height="14"/><rect x="5" y="5" width="14" height="14" transform="rotate(45 12 12)"/>' +
+      '<circle cx="12" cy="12" r="2.2"/></g></svg>';
+    var el = document.createElement('div');
+    el.id = 'ayahWall';
+    el.className = 'pause-wall ayah-wall';
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-modal', 'true');
+    el.innerHTML = '<div class="pause-card ayah-card">' +
+      '<div class="ayah-star">' + star + '</div>' +
+      '<p class="ayah-ar" dir="rtl" lang="ar">وَالَّذِينَ هُمْ لِأَمَانَاتِهِمْ وَعَهْدِهِمْ رَاعُونَ</p>' +
+      '<p class="ayah-ru">«…которые сохраняют доверенное им и <b>соблюдают договоры</b>»</p>' +
+      '<div class="ayah-src">Сура «аль-Маариж», аят 32</div>' +
+      (notice && notice.lock ? '' : '<button class="btn ayah-go" type="button">Продолжить</button>') +
+    '</div>';
+    document.body.appendChild(el);
+    var go = el.querySelector('.ayah-go');
+    if (go) go.addEventListener('click', function () { el.remove(); });
   }
 
   /* ----------------------------------------------- контент из админки */

@@ -696,6 +696,27 @@ function check(name, cond, info) {
     auto811 && q811.length === 0 && sent.some(x => /время паузы, добавлены/.test(x.text || '') && x.chat === ADMIN),
     JSON.stringify({ auto811, left: q811.length }));
 
+  /* ---- аят для администраторов: ADMIN_NOTICE с ADMIN_NOTICE_FROM ---- */
+  const meOf = async h => (await call('/api/me', { method: 'POST', headers: jsonHdr(h), body: '{}' })).data;
+  process.env.ADMIN_NOTICE = 'ayah'; process.env.ADMIN_NOTICE_FROM = new Date(Date.now() + 3600000).toISOString();
+  app = freshApp();
+  const ntEarly = await meOf(asAdmin());
+  process.env.ADMIN_NOTICE_FROM = new Date(Date.now() - 60000).toISOString();
+  app = freshApp();
+  const ntAdmin = await meOf(asAdmin()), ntUser = await meOf(asUser()), ntH = (await call('/api/health')).data.notice;
+  process.env.ADMIN_NOTICE = 'ayah-lock';
+  app = freshApp();
+  const ntLock = await meOf(asAdmin());
+  process.env.ADMIN_NOTICE = 'off';
+  app = freshApp();
+  const ntOff = await meOf(asAdmin());
+  delete process.env.ADMIN_NOTICE; delete process.env.ADMIN_NOTICE_FROM;
+  app = freshApp();
+  check('аят: до назначенного времени нет, после — админу (с кнопкой / без в ayah-lock), клиенту нет, off — нет',
+    !ntEarly.notice && ntAdmin.notice && ntAdmin.notice.kind === 'ayah' && ntAdmin.notice.lock === false && !ntUser.notice &&
+    ntLock.notice && ntLock.notice.lock === true && !ntOff.notice && /показывается/.test(ntH),
+    JSON.stringify({ early: !!ntEarly.notice, admin: ntAdmin.notice, user: !!ntUser.notice, lock: ntLock.notice, off: !!ntOff.notice, health: ntH }));
+
   const pk = require(path.join(ROOT, 'assets', 'js', 'parse-post.js')).kind;
   check('классификатор постов: квартира, машина, объявление; узбекское «suv» (вода) — не машина',
     pk('🏠 2-комнатная квартира / Медина') === 'home' && pk('🚘 Toyota Camry 2019 / Медина') === 'car' && pk('Джума мубарак!') === 'other' &&
